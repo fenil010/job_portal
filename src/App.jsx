@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { ToastProvider, useToast } from './components/ui';
 import {
   LoginPage,
@@ -9,14 +9,16 @@ import {
   JobListingsPage,
   JobDetailsPage,
 } from './pages';
+import { mockJobs, mockApplications } from './data/mockData';
 
 function AppContent() {
   const { toast } = useToast();
   const [currentPage, setCurrentPage] = useState('Login');
   const [selectedJob, setSelectedJob] = useState(null);
   const [user, setUser] = useState(null);
-  const [savedJobs, setSavedJobs] = useState([]);
-  const [applications, setApplications] = useState([]);
+  const [savedJobs, setSavedJobs] = useState(() => JSON.parse(localStorage.getItem('jp_savedJobs') || '[]'));
+  const [applications, setApplications] = useState(() => JSON.parse(localStorage.getItem('jp_applications') || 'null') ?? mockApplications);
+  const [jobs, setJobs] = useState(() => JSON.parse(localStorage.getItem('jp_jobs') || 'null') ?? mockJobs);
 
   const handleNavigate = useCallback((page, data) => {
     if (page === 'JobDetails' && data) {
@@ -27,6 +29,7 @@ function AppContent() {
 
   const handleLogin = useCallback((userData) => {
     setUser(userData);
+    localStorage.setItem('jp_user', JSON.stringify(userData));
     // Route based on role
     if (userData.role === 'employer') {
       setCurrentPage('EmployerDashboard');
@@ -42,6 +45,7 @@ function AppContent() {
 
   const handleRegister = useCallback((userData) => {
     setUser(userData);
+    localStorage.setItem('jp_user', JSON.stringify(userData));
     if (userData.role === 'employer') {
       setCurrentPage('EmployerDashboard');
       toast.success('Account created successfully!', { title: 'Welcome Employer!' });
@@ -55,6 +59,7 @@ function AppContent() {
     setUser(null);
     setCurrentPage('Login');
     toast.info('You have been logged out');
+    localStorage.removeItem('jp_user');
   }, [toast]);
 
   const handleSaveJob = useCallback((job) => {
@@ -62,10 +67,14 @@ function AppContent() {
       const isSaved = prev.some((j) => j.id === job.id);
       if (isSaved) {
         toast.info('Job removed from saved');
-        return prev.filter((j) => j.id !== job.id);
+        const next = prev.filter((j) => j.id !== job.id);
+        localStorage.setItem('jp_savedJobs', JSON.stringify(next));
+        return next;
       } else {
         toast.success('Job saved successfully!');
-        return [...prev, job];
+        const next = [...prev, job];
+        localStorage.setItem('jp_savedJobs', JSON.stringify(next));
+        return next;
       }
     });
   }, [toast]);
@@ -87,13 +96,45 @@ function AppContent() {
       statusColor: 'primary',
     };
 
-    setApplications((prev) => [...prev, newApplication]);
-    toast.success(`Applied to ${job.title} at ${job.company}!`, { title: 'Application Submitted' });
+    setApplications((prev) => {
+      const next = [...prev, newApplication];
+      localStorage.setItem('jp_applications', JSON.stringify(next));
+      return next;
+    });
+    // increment applicants count on job if present
+    setJobs((prevJobs) => {
+      const nextJobs = prevJobs.map((j) => (j.id === job.id ? { ...j, applicants: (j.applicants || 0) + 1 } : j));
+      localStorage.setItem('jp_jobs', JSON.stringify(nextJobs));
+      return nextJobs;
+    });
+    toast.success(`Applied to ${job.title} at ${job.company || 'company'}!`, { title: 'Application Submitted' });
   }, [applications, toast]);
 
   const isJobSaved = useCallback((jobId) => {
     return savedJobs.some((j) => j.id === jobId);
   }, [savedJobs]);
+
+  // Add new job (used by EmployerDashboard)
+  const handlePostJob = useCallback((jobData) => {
+    const job = { id: Date.now(), ...jobData };
+    setJobs((prev) => {
+      const next = [job, ...prev];
+      localStorage.setItem('jp_jobs', JSON.stringify(next));
+      return next;
+    });
+    toast.success('Job posted successfully', { title: 'Posted' });
+    return job;
+  }, [toast]);
+
+  useEffect(() => {
+    // load user from localStorage if present
+    try {
+      const storedUser = JSON.parse(localStorage.getItem('jp_user') || 'null');
+      if (storedUser) setUser(storedUser);
+    } catch (e) {
+      // ignore
+    }
+  }, []);
 
   const renderPage = () => {
     const commonProps = {
@@ -116,7 +157,7 @@ function AppContent() {
           />
         );
       case 'EmployerDashboard':
-        return <EmployerDashboard {...commonProps} />;
+        return <EmployerDashboard {...commonProps} jobs={jobs} onPostJob={handlePostJob} applications={applications} />;
       case 'AdminDashboard':
         return <AdminDashboard {...commonProps} />;
       case 'Jobs':
@@ -126,6 +167,7 @@ function AppContent() {
             onSaveJob={handleSaveJob}
             onApplyJob={handleApplyJob}
             isJobSaved={isJobSaved}
+            jobs={jobs}
           />
         );
       case 'JobDetails':
@@ -157,6 +199,7 @@ function AppContent() {
             isJobSaved={isJobSaved}
             savedOnly
             savedJobs={savedJobs}
+            jobs={jobs}
           />
         );
       case 'Profile':

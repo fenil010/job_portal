@@ -11,14 +11,14 @@ const sortOptions = [
     { value: 'salary-low', label: 'Salary: Low to High' },
 ];
 
-export default function JobListingsPage({ onNavigate, onSaveJob, onApplyJob, isJobSaved, savedOnly = false, savedJobs = [] }) {
+export default function JobListingsPage({ onNavigate, onSaveJob, onApplyJob, isJobSaved, savedOnly = false, savedJobs = [], jobs: jobsProp = [] }) {
     const [filters, setFilters] = useState({});
     const [sortBy, setSortBy] = useState('relevance');
     const [viewMode, setViewMode] = useState('list');
 
     // Filter and sort jobs
     const filteredJobs = useMemo(() => {
-        let jobs = savedOnly ? savedJobs : mockJobs;
+        let jobs = savedOnly ? savedJobs : (jobsProp && jobsProp.length ? jobsProp : mockJobs);
 
         // Apply keyword filter
         if (filters.keyword) {

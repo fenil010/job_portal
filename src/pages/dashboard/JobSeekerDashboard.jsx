@@ -1,18 +1,39 @@
 import { DashboardLayout } from '../../components/layout';
 import { Card, CardHeader, CardTitle, CardContent, Badge, Button, Table, TableHeader, TableBody, TableRow, TableHead, TableCell, Modal, ModalFooter } from '../../components/ui';
-import { mockNotifications } from '../../data/mockData';
-import { useState } from 'react';
+import { ResumeUploader, ResumePreview, ResumeVersionList, ResumeAnalysisModal } from '../../components/resume';
+import { mockNotifications, mockJobs } from '../../data/mockData';
+import { useState, useEffect, useCallback } from 'react';
+import { getResumes, saveResume, deleteResume, setPrimaryResume } from '../../utils/resumeStorage';
+import { parseResume, createMockParsedData } from '../../utils/resumeParser';
+import { analyzeResume, createDemoAnalysis } from '../../utils/resumeAnalyzer';
 
-export default function JobSeekerDashboard({ onNavigate, savedJobs = [], applications = [], user, onLogout }) {
+export default function JobSeekerDashboard({ onNavigate, savedJobs = [], applications = [], user }) {
     const [showResumeModal, setShowResumeModal] = useState(false);
-    const [resumeFile, setResumeFile] = useState(null);
-    const profileCompletion = 75;
+    const [showPreviewModal, setShowPreviewModal] = useState(false);
+    const [showAnalysisModal, setShowAnalysisModal] = useState(false);
+    const [previewFile, setPreviewFile] = useState(null);
+    const [previewResumeData, setPreviewResumeData] = useState(null);
+    const [analysisResult, setAnalysisResult] = useState(null);
+    const [analysisResumeName, setAnalysisResumeName] = useState('');
+    const [resumes, setResumes] = useState([]);
+    const [primaryResumeId, setPrimaryResumeIdState] = useState(null);
+    const [isUploading, setIsUploading] = useState(false);
+
+    const profileCompletion = resumes.length > 0 ? 90 : 75;
+
+    // Load resumes on mount
+    useEffect(() => {
+        const userId = user?.id || 'default';
+        const { resumes: storedResumes, primaryResumeId: storedPrimaryId } = getResumes(userId);
+        setResumes(storedResumes);
+        setPrimaryResumeIdState(storedPrimaryId);
+    }, [user]);
 
     const stats = [
         { label: 'Applications', value: applications.length, change: `+${Math.min(applications.length, 3)} this week`, icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>, color: 'bg-[#789A99]' },
         { label: 'In Review', value: Math.floor(applications.length * 0.3), change: 'Awaiting response', icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>, color: 'bg-[#fbbf24]' },
         { label: 'Interviews', value: Math.floor(applications.length * 0.15), change: 'Next: Tomorrow 2PM', icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>, color: 'bg-[#60a5fa]' },
-        { label: 'Saved Jobs', value: savedJobs.length, change: `${savedJobs.length} items`, icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>, color: 'bg-[#FFD2C2]' },
+        { label: 'Resumes', value: resumes.length, change: resumes.length > 0 ? `${resumes.length}/5 versions` : 'Upload your resume', icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>, color: 'bg-[#FFD2C2]' },
     ];
 
     const displayApplications = applications.length > 0 ? applications : [
@@ -20,6 +41,91 @@ export default function JobSeekerDashboard({ onNavigate, savedJobs = [], applica
         { id: 2, jobTitle: 'Product Designer', company: 'DesignHub Studio', appliedAt: 'Jan 10, 2026', status: 'Interview Scheduled', statusColor: 'info' },
         { id: 3, jobTitle: 'Backend Engineer', company: 'DataFlow Systems', appliedAt: 'Jan 5, 2026', status: 'Offer Received', statusColor: 'success' },
     ];
+
+    const handleUpload = useCallback(async (file) => {
+        setIsUploading(true);
+        try {
+            // Try to parse the resume
+            let parsedData = null;
+            try {
+                parsedData = await parseResume(file);
+                // If parsing failed, use mock data for demo
+                if (!parsedData.parseSuccess) {
+                    parsedData = createMockParsedData(file.name);
+                }
+            } catch {
+                parsedData = createMockParsedData(file.name);
+            }
+
+            const userId = user?.id || 'default';
+            const result = await saveResume(file, parsedData, userId);
+
+            if (result.success) {
+                // Refresh resumes list
+                const { resumes: updatedResumes, primaryResumeId: updatedPrimaryId } = getResumes(userId);
+                setResumes(updatedResumes);
+                setPrimaryResumeIdState(updatedPrimaryId);
+                setShowResumeModal(false);
+            } else {
+                throw new Error(result.error || 'Upload failed');
+            }
+        } finally {
+            setIsUploading(false);
+        }
+    }, [user]);
+
+    const handlePreviewFile = useCallback((file) => {
+        setPreviewFile(file);
+        setPreviewResumeData(null);
+        setShowPreviewModal(true);
+    }, []);
+
+    const handlePreviewResume = useCallback((resume) => {
+        setPreviewFile(null);
+        setPreviewResumeData(resume);
+        setShowPreviewModal(true);
+    }, []);
+
+    const handleSetPrimary = useCallback((resumeId) => {
+        const userId = user?.id || 'default';
+        const result = setPrimaryResume(resumeId, userId);
+        if (result.success) {
+            setPrimaryResumeIdState(resumeId);
+        }
+    }, [user]);
+
+    const handleDeleteResume = useCallback((resumeId) => {
+        const userId = user?.id || 'default';
+        const result = deleteResume(resumeId, userId);
+        if (result.success) {
+            const { resumes: updatedResumes, primaryResumeId: updatedPrimaryId } = getResumes(userId);
+            setResumes(updatedResumes);
+            setPrimaryResumeIdState(updatedPrimaryId);
+        }
+    }, [user]);
+
+    const handleAnalyzeResume = useCallback((resume) => {
+        // Use the first mock job for demo analysis, or create a generic one
+        const demoJob = mockJobs[0] || {
+            title: 'Sample Position',
+            skills: ['React', 'JavaScript', 'TypeScript', 'Node.js', 'Git'],
+            experienceLevel: 'Mid Level',
+            description: 'Looking for a skilled developer with strong frontend and backend experience.'
+        };
+
+        // Perform analysis using resume parsed data
+        let analysis;
+        if (resume.parsedData) {
+            analysis = analyzeResume(resume.parsedData, demoJob);
+        } else {
+            // Use demo analysis if no parsed data
+            analysis = createDemoAnalysis();
+        }
+
+        setAnalysisResult(analysis);
+        setAnalysisResumeName(resume.fileName);
+        setShowAnalysisModal(true);
+    }, []);
 
     return (
         <DashboardLayout activeItem="Dashboard" onNavigate={onNavigate}>
@@ -38,7 +144,7 @@ export default function JobSeekerDashboard({ onNavigate, savedJobs = [], applica
                             hover
                             className="cursor-pointer animate-fade-in-up"
                             style={{ animationDelay: `${index * 100}ms` }}
-                            onClick={() => stat.label === 'Saved Jobs' && onNavigate?.('Saved')}
+                            onClick={() => stat.label === 'Resumes' && setShowResumeModal(true)}
                         >
                             <CardContent>
                                 <div className="flex items-center justify-between">
@@ -56,6 +162,34 @@ export default function JobSeekerDashboard({ onNavigate, savedJobs = [], applica
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div className="lg:col-span-2 space-y-6">
+                        {/* Resume Management Card */}
+                        <Card variant="default" padding="lg" className="animate-fade-in-up stagger-1">
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2">
+                                    <svg className="w-5 h-5 text-[#789A99]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    Resume Manager
+                                </CardTitle>
+                                <Button variant="primary" size="sm" onClick={() => setShowResumeModal(true)}>
+                                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                    </svg>
+                                    Upload New
+                                </Button>
+                            </CardHeader>
+                            <CardContent>
+                                <ResumeVersionList
+                                    resumes={resumes}
+                                    primaryResumeId={primaryResumeId}
+                                    onSetPrimary={handleSetPrimary}
+                                    onDelete={handleDeleteResume}
+                                    onPreview={handlePreviewResume}
+                                    onAnalyze={handleAnalyzeResume}
+                                />
+                            </CardContent>
+                        </Card>
+
                         {/* Profile Completion */}
                         <Card variant="default" padding="lg" className="animate-fade-in-up stagger-2">
                             <CardHeader>
@@ -69,25 +203,24 @@ export default function JobSeekerDashboard({ onNavigate, savedJobs = [], applica
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                    {['Basic Info', 'Experience', 'Skills', 'Portfolio'].map((item, i) => (
-                                        <div key={item} className={`flex items-center gap-2 p-3 rounded-xl transition-all duration-300 hover:scale-105 cursor-pointer ${i < 2 ? 'bg-[#4ade80]/15' : 'bg-[#e8e0dc] hover:bg-[#FFD2C2]/30'}`}>
-                                            {i < 2 ? (
+                                    {[
+                                        { name: 'Basic Info', done: true },
+                                        { name: 'Experience', done: true },
+                                        { name: 'Resume', done: resumes.length > 0 },
+                                        { name: 'Skills', done: false }
+                                    ].map((item) => (
+                                        <div key={item.name} className={`flex items-center gap-2 p-3 rounded-xl transition-all duration-300 hover:scale-105 cursor-pointer ${item.done ? 'bg-[#4ade80]/15' : 'bg-[#e8e0dc] hover:bg-[#FFD2C2]/30'}`}>
+                                            {item.done ? (
                                                 <svg className="w-4 h-4 text-[#4ade80]" fill="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                             ) : (
                                                 <div className="w-4 h-4 rounded-full border-2 border-[#8a9aa4]" />
                                             )}
-                                            <span className={`text-xs font-medium ${i < 2 ? 'text-[#16a34a]' : 'text-[#5a6b75]'}`}>{item}</span>
+                                            <span className={`text-xs font-medium ${item.done ? 'text-[#16a34a]' : 'text-[#5a6b75]'}`}>{item.name}</span>
                                         </div>
                                     ))}
                                 </div>
                                 <div className="flex gap-3 mt-4">
                                     <Button variant="primary" size="sm" onClick={() => onNavigate?.('Profile')}>Complete Profile</Button>
-                                    <Button variant="outline" size="sm" onClick={() => setShowResumeModal(true)}>
-                                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                                        </svg>
-                                        Upload Resume
-                                    </Button>
                                 </div>
                             </CardContent>
                         </Card>
@@ -176,9 +309,9 @@ export default function JobSeekerDashboard({ onNavigate, savedJobs = [], applica
                                     <div key={notif.id} className={`p-4 hover:bg-[#FFD2C2]/10 transition-all duration-300 cursor-pointer border-b border-[#e8e0dc] last:border-b-0 ${!notif.isRead ? 'bg-[#789A99]/5' : ''}`}>
                                         <div className="flex items-start gap-3">
                                             <div className={`p-2.5 rounded-xl flex-shrink-0 ${notif.type === 'interview' ? 'bg-[#60a5fa]/15 text-[#2563eb]' :
-                                                    notif.type === 'view' ? 'bg-[#4ade80]/15 text-[#16a34a]' :
-                                                        notif.type === 'match' ? 'bg-[#a78bfa]/15 text-[#7c3aed]' :
-                                                            'bg-[#e8e0dc] text-[#5a6b75]'
+                                                notif.type === 'view' ? 'bg-[#4ade80]/15 text-[#16a34a]' :
+                                                    notif.type === 'match' ? 'bg-[#a78bfa]/15 text-[#7c3aed]' :
+                                                        'bg-[#e8e0dc] text-[#5a6b75]'
                                                 }`}>
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
                                             </div>
@@ -210,33 +343,34 @@ export default function JobSeekerDashboard({ onNavigate, savedJobs = [], applica
             </div>
 
             {/* Resume Upload Modal */}
-            <Modal isOpen={showResumeModal} onClose={() => setShowResumeModal(false)} title="Upload Resume" size="md">
-                <div className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors duration-300 ${resumeFile ? 'border-[#789A99] bg-[#789A99]/5' : 'border-[#e8e0dc] hover:border-[#FFD2C2]'}`}>
-                    {resumeFile ? (
-                        <div className="flex items-center justify-center gap-3">
-                            <svg className="w-10 h-10 text-[#789A99]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                            <div className="text-left">
-                                <p className="font-medium text-[#1e2a32]">{resumeFile.name}</p>
-                                <button onClick={() => setResumeFile(null)} className="text-sm text-[#f87171] hover:underline">Remove</button>
-                            </div>
-                        </div>
-                    ) : (
-                        <>
-                            <svg className="w-12 h-12 text-[#8a9aa4] mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
-                            <p className="text-[#5a6b75] mb-2">Drag & drop your resume or</p>
-                            <label className="cursor-pointer font-medium text-[#789A99] hover:underline">
-                                Browse files
-                                <input type="file" className="hidden" accept=".pdf,.doc,.docx" onChange={(e) => setResumeFile(e.target.files?.[0] || null)} />
-                            </label>
-                            <p className="text-xs text-[#8a9aa4] mt-3">PDF, DOC, or DOCX (max 5MB)</p>
-                        </>
-                    )}
-                </div>
+            <Modal isOpen={showResumeModal} onClose={() => setShowResumeModal(false)} title="Upload Resume" size="lg">
+                <ResumeUploader
+                    onUpload={handleUpload}
+                    onPreview={handlePreviewFile}
+                    isUploading={isUploading}
+                />
                 <ModalFooter>
-                    <Button variant="ghost" onClick={() => setShowResumeModal(false)}>Cancel</Button>
-                    <Button variant="primary" disabled={!resumeFile} onClick={() => setShowResumeModal(false)}>Upload</Button>
+                    <Button variant="ghost" onClick={() => setShowResumeModal(false)}>Close</Button>
                 </ModalFooter>
             </Modal>
+
+            {/* Resume Preview Modal */}
+            <Modal isOpen={showPreviewModal} onClose={() => setShowPreviewModal(false)} title="Resume Preview" size="2xl">
+                <ResumePreview
+                    file={previewFile}
+                    resumeData={previewResumeData}
+                    onClose={() => setShowPreviewModal(false)}
+                />
+            </Modal>
+
+            {/* Resume Analysis Modal */}
+            <ResumeAnalysisModal
+                isOpen={showAnalysisModal}
+                onClose={() => setShowAnalysisModal(false)}
+                analysis={analysisResult}
+                resumeName={analysisResumeName}
+                jobTitle={mockJobs[0]?.title || 'Sample Position'}
+            />
         </DashboardLayout>
     );
 }

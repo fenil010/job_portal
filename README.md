@@ -1,16 +1,84 @@
-# React + Vite
+# Job Portal
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is a **Job Portal** web application built using **React** and **Vite**. The platform allows job seekers, employers, and administrators to interact seamlessly. It includes features like job listings, job applications, and user dashboards.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### General
+- Modern UI built with React components.
+- State management using React hooks.
+- Modular and reusable component structure.
 
-## React Compiler
+### For Job Seekers
+- Browse job listings.
+- View detailed job descriptions.
+- Apply for jobs.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### For Employers
+- Post job listings.
+- Manage job applications.
 
-## Expanding the ESLint configuration
+### For Administrators
+- Manage users and roles.
+- Oversee job postings and applications.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Project Structure
+
+The project follows a modular structure for better scalability and maintainability:
+
+```
+src/
+  components/       # Reusable UI components
+  pages/            # Application pages (e.g., Login, Dashboard, Job Listings)
+  data/             # Mock data for development
+  assets/           # Static assets like images and icons
+```
+
+### Key Files and Directories
+- `src/components/`: Contains reusable UI components like `Button`, `Modal`, `Table`, etc.
+- `src/pages/`: Contains the main pages such as `LoginPage`, `JobListingsPage`, and dashboards for different user roles.
+- `src/data/mockData.js`: Mock data for development purposes.
+
+## Getting Started
+
+### Prerequisites
+- Node.js (v16 or higher)
+- npm or yarn
+
+### Installation
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   ```
+2. Navigate to the project directory:
+   ```bash
+   cd job_portal
+   ```
+3. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+### Development
+To start the development server:
+```bash
+npm run dev
+```
+
+### Build
+To create a production build:
+```bash
+npm run build
+```
+
+### Linting
+To run ESLint:
+```bash
+npm run lint
+```
+
+## Contributing
+Contributions are welcome! Please fork the repository and submit a pull request.
+
+## License
+This project is licensed under the MIT License.
