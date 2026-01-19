@@ -1,7 +1,15 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { DashboardLayout } from '../../components/layout';
-import { Button, Select } from '../../components/ui';
+import { Button, Select, useToast, Modal, ModalFooter, Input } from '../../components/ui';
 import { JobCard, JobFilters } from '../../components/jobs';
+import {
+    AdvancedSearchBar,
+    parseBooleanQuery,
+    SavedSearches,
+    SearchRecommendations,
+    recordSearchHistory,
+    filterJobsByDistance,
+} from '../../components/search';
 import { mockJobs } from '../../data/mockData';
 
 const sortOptions = [
@@ -12,30 +20,47 @@ const sortOptions = [
 ];
 
 export default function JobListingsPage({ onNavigate, onSaveJob, onApplyJob, isJobSaved, savedOnly = false, savedJobs = [], jobs: jobsProp = [] }) {
+    const { toast } = useToast();
+    const [searchQuery, setSearchQuery] = useState('');
     const [filters, setFilters] = useState({});
     const [sortBy, setSortBy] = useState('relevance');
     const [viewMode, setViewMode] = useState('list');
+    const [showSaveModal, setShowSaveModal] = useState(false);
+    const [saveSearchName, setSaveSearchName] = useState('');
+
+    const allJobs = savedOnly ? savedJobs : (jobsProp && jobsProp.length ? jobsProp : mockJobs);
+
+    // Get all unique skills for suggestions
+    const skillSuggestions = useMemo(() => {
+        const skills = new Set();
+        allJobs.forEach(job => job.skills?.forEach(s => skills.add(s)));
+        return [...skills];
+    }, [allJobs]);
 
     // Filter and sort jobs
     const filteredJobs = useMemo(() => {
-        let jobs = savedOnly ? savedJobs : (jobsProp && jobsProp.length ? jobsProp : mockJobs);
+        let jobs = [...allJobs];
 
-        // Apply keyword filter
-        if (filters.keyword) {
-            const keyword = filters.keyword.toLowerCase();
-            jobs = jobs.filter(
-                (job) =>
-                    job.title.toLowerCase().includes(keyword) ||
-                    job.company.toLowerCase().includes(keyword) ||
-                    job.skills?.some((s) => s.toLowerCase().includes(keyword))
+        // Apply boolean search query
+        if (searchQuery.trim()) {
+            const matchFn = parseBooleanQuery(searchQuery);
+            jobs = jobs.filter(matchFn);
+        }
+
+        // Apply location filter with geo-distance
+        if (filters.userCoords && filters.radius) {
+            jobs = filterJobsByDistance(jobs, filters.userCoords, parseFloat(filters.radius));
+        } else if (filters.location) {
+            jobs = jobs.filter((job) =>
+                job.location.toLowerCase().includes(filters.location.toLowerCase()) ||
+                (filters.location.toLowerCase() === 'remote' && job.isRemote)
             );
         }
 
-        // Apply location filter
-        if (filters.location) {
+        // Apply skills filter
+        if (filters.skills?.length > 0) {
             jobs = jobs.filter((job) =>
-                job.location.toLowerCase().includes(filters.location.toLowerCase()) ||
-                (filters.location === 'remote' && job.isRemote)
+                filters.skills.some((skill) => job.skills?.some(s => s.toLowerCase().includes(skill.toLowerCase())))
             );
         }
 
@@ -52,6 +77,22 @@ export default function JobListingsPage({ onNavigate, onSaveJob, onApplyJob, isJ
             jobs = jobs.filter((job) =>
                 job.experienceLevel?.toLowerCase().includes(expMap[filters.experience]?.toLowerCase() || '')
             );
+        }
+
+        // Apply education filter
+        if (filters.education) {
+            // In production, jobs would have education requirements
+            // For now, just filter by experience as a proxy
+        }
+
+        // Apply salary filter
+        if (filters.salaryMin) {
+            const minSalary = parseFloat(filters.salaryMin);
+            jobs = jobs.filter((job) => job.salaryMax >= minSalary);
+        }
+        if (filters.salaryMax) {
+            const maxSalary = parseFloat(filters.salaryMax);
+            jobs = jobs.filter((job) => job.salaryMin <= maxSalary);
         }
 
         // Apply remote filter
@@ -75,14 +116,54 @@ export default function JobListingsPage({ onNavigate, onSaveJob, onApplyJob, isJ
         }
 
         return jobs;
-    }, [filters, sortBy, savedOnly, savedJobs]);
+    }, [searchQuery, filters, sortBy, allJobs]);
+
+    const handleSearch = useCallback((query) => {
+        setSearchQuery(query);
+        if (query.trim()) {
+            recordSearchHistory(query);
+        }
+    }, []);
+
+    const handleSaveCurrentSearch = useCallback(() => {
+        setShowSaveModal(true);
+    }, []);
+
+    const confirmSaveSearch = useCallback(() => {
+        const searchData = {
+            query: searchQuery,
+            filters,
+            name: saveSearchName || `Search ${Date.now()}`,
+        };
+
+        try {
+            const existing = JSON.parse(localStorage.getItem('jp_saved_searches') || '[]');
+            const updated = [
+                { id: Date.now(), ...searchData, createdAt: new Date().toISOString(), useCount: 0 },
+                ...existing,
+            ].slice(0, 10);
+            localStorage.setItem('jp_saved_searches', JSON.stringify(updated));
+            toast.success('Search saved!');
+        } catch {
+            toast.error('Failed to save search');
+        }
+
+        setShowSaveModal(false);
+        setSaveSearchName('');
+    }, [searchQuery, filters, saveSearchName, toast]);
+
+    const handleLoadSearch = useCallback((query) => {
+        setSearchQuery(query);
+        handleSearch(query);
+    }, [handleSearch]);
 
     const handleViewDetails = (job) => onNavigate?.('JobDetails', job);
 
     return (
         <DashboardLayout activeItem={savedOnly ? 'Saved' : 'Jobs'} onNavigate={onNavigate}>
             <div className="max-w-7xl mx-auto">
-                <div className="mb-8 animate-fade-in-down">
+                {/* Header */}
+                <div className="mb-6 animate-fade-in-down">
                     <h1 className="text-3xl font-bold text-[#1e2a32]">
                         {savedOnly ? 'Saved Jobs' : 'Find Your Dream Job'}
                     </h1>
@@ -93,17 +174,43 @@ export default function JobListingsPage({ onNavigate, onSaveJob, onApplyJob, isJ
                     </p>
                 </div>
 
+                {/* Advanced Search Bar */}
+                {!savedOnly && (
+                    <div className="mb-6 animate-fade-in-up">
+                        <AdvancedSearchBar
+                            value={searchQuery}
+                            onChange={setSearchQuery}
+                            onSearch={handleSearch}
+                            suggestions={skillSuggestions}
+                            onSaveSearch={handleSaveCurrentSearch}
+                            showSaveButton={!!(searchQuery.trim() || Object.keys(filters).length > 0)}
+                        />
+                    </div>
+                )}
+
                 <div className="flex flex-col lg:flex-row gap-8">
                     {!savedOnly && (
-                        <aside className="lg:w-80 flex-shrink-0">
-                            <JobFilters filters={filters} onFilterChange={setFilters} onReset={() => setFilters({})} />
+                        <aside className="lg:w-80 flex-shrink-0 space-y-4">
+                            <JobFilters
+                                filters={filters}
+                                onFilterChange={setFilters}
+                                onReset={() => setFilters({})}
+                                onSaveSearch={handleSaveCurrentSearch}
+                            />
+                            <SavedSearches onLoadSearch={handleLoadSearch} />
+                            <SearchRecommendations
+                                jobs={allJobs}
+                                onSearch={handleLoadSearch}
+                                onViewJob={handleViewDetails}
+                            />
                         </aside>
                     )}
 
-                    <main className={savedOnly ? 'flex-1' : 'flex-1'}>
+                    <main className="flex-1">
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 animate-fade-in">
                             <p className="text-sm text-[#5a6b75]">
                                 Showing <span className="font-semibold text-[#1e2a32]">{filteredJobs.length}</span> jobs
+                                {searchQuery && <span className="ml-1">for "<span className="font-medium">{searchQuery}</span>"</span>}
                             </p>
                             <div className="flex items-center gap-3">
                                 <div className="w-44">
@@ -138,8 +245,11 @@ export default function JobListingsPage({ onNavigate, onSaveJob, onApplyJob, isJ
                                     </svg>
                                 </div>
                                 <h3 className="text-xl font-semibold text-[#1e2a32] mb-2">No jobs found</h3>
-                                <p className="text-[#5a6b75] mb-6">Try adjusting your filters or search criteria</p>
-                                <Button variant="primary" onClick={() => setFilters({})}>Clear Filters</Button>
+                                <p className="text-[#5a6b75] mb-6">Try adjusting your search or filters</p>
+                                <div className="flex justify-center gap-3">
+                                    <Button variant="ghost" onClick={() => { setSearchQuery(''); setFilters({}); }}>Clear All</Button>
+                                    <Button variant="primary" onClick={() => setFilters({})}>Reset Filters</Button>
+                                </div>
                             </div>
                         ) : (
                             <div className={`space-y-4 ${viewMode === 'grid' ? 'sm:grid sm:grid-cols-2 sm:gap-4 sm:space-y-0' : ''}`}>
@@ -180,6 +290,44 @@ export default function JobListingsPage({ onNavigate, onSaveJob, onApplyJob, isJ
                     </main>
                 </div>
             </div>
+
+            {/* Save Search Modal */}
+            <Modal
+                isOpen={showSaveModal}
+                onClose={() => setShowSaveModal(false)}
+                title="Save Search"
+            >
+                <div className="space-y-4">
+                    <Input
+                        label="Search Name"
+                        placeholder="e.g., Remote React Jobs"
+                        value={saveSearchName}
+                        onChange={(e) => setSaveSearchName(e.target.value)}
+                        autoFocus
+                    />
+                    {searchQuery && (
+                        <div className="p-3 bg-[#FFD2C2]/20 rounded-xl">
+                            <p className="text-xs text-[#8a9aa4] mb-1">Query</p>
+                            <p className="text-sm font-mono text-[#1e2a32]">{searchQuery}</p>
+                        </div>
+                    )}
+                    {Object.keys(filters).length > 0 && (
+                        <div className="p-3 bg-[#789A99]/10 rounded-xl">
+                            <p className="text-xs text-[#8a9aa4] mb-1">Active Filters</p>
+                            <p className="text-sm text-[#1e2a32]">{Object.keys(filters).filter(k => filters[k]).length} filters applied</p>
+                        </div>
+                    )}
+                </div>
+                <ModalFooter>
+                    <Button variant="ghost" onClick={() => setShowSaveModal(false)}>Cancel</Button>
+                    <Button variant="primary" onClick={confirmSaveSearch}>
+                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                        </svg>
+                        Save Search
+                    </Button>
+                </ModalFooter>
+            </Modal>
         </DashboardLayout>
     );
 }

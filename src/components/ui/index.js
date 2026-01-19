@@ -8,3 +8,6 @@ export { Modal, ModalFooter } from './Modal';
 export { default as ToastProvider, useToast, ToastItem } from './Toast';
 export { Tabs, TabsList, TabsTrigger, TabsContent } from './Tabs';
 export { default as Select } from './Select';
+export { Checkbox } from './Checkbox';
+export { TagInput } from './TagInput';
+export { ProgressBar, StageProgress } from './ProgressBar';
