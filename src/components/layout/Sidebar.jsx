@@ -16,7 +16,7 @@ export default function Sidebar({ isOpen, onClose, activeItem, onNavigate }) {
         <>
             {isOpen && (
                 <div
-                    className="fixed inset-0 bg-[#1e2a32]/30 backdrop-blur-sm z-40 lg:hidden animate-fade-in"
+                    className="fixed inset-0 bg-[#3E2723]/30 backdrop-blur-sm z-40 lg:hidden animate-fade-in"
                     onClick={onClose}
                     aria-hidden="true"
                 />
@@ -25,7 +25,7 @@ export default function Sidebar({ isOpen, onClose, activeItem, onNavigate }) {
             <aside
                 className={`
           fixed top-0 left-0 z-50 h-full
-          bg-white border-r-2 border-[#e8e0dc]
+          bg-[#FAF6F0] border-r-2 border-[#90353D]/20
           transition-all duration-500 ease-out
           ${isOpen ? 'translate-x-0' : '-translate-x-full'}
           lg:translate-x-0 lg:static lg:z-auto
@@ -36,16 +36,16 @@ export default function Sidebar({ isOpen, onClose, activeItem, onNavigate }) {
                 aria-label="Sidebar navigation"
             >
                 <div className="flex flex-col h-full">
-                    <div className="flex items-center justify-between h-18 px-5 py-4 border-b-2 border-[#e8e0dc]">
+                    <div className="flex items-center justify-between h-18 px-5 py-4 border-b-2 border-[#90353D]/20">
                         {!collapsed && (
                             <a href="/" className="flex items-center gap-3 group">
-                                <div className="w-10 h-10 bg-gradient-to-br from-[#FFD2C2] to-[#789A99] rounded-xl flex items-center justify-center shadow-lg shadow-[#789A99]/20 group-hover:scale-110 transition-transform duration-300">
-                                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                <div className="w-10 h-10 bg-gradient-to-br from-[#90353D] to-[#6B2830] rounded-xl flex items-center justify-center shadow-lg shadow-[#90353D]/20 group-hover:scale-110 transition-transform duration-300">
+                                    <svg className="w-6 h-6 text-[#F4EDE3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
                                     </svg>
                                 </div>
-                                <span className="text-xl font-bold text-[#1e2a32]">
-                                    Job<span className="text-[#789A99]">Portal</span>
+                                <span className="text-xl font-bold text-[#3E2723]">
+                                    Job<span className="text-[#90353D]">Portal</span>
                                 </span>
                             </a>
                         )}
@@ -53,7 +53,7 @@ export default function Sidebar({ isOpen, onClose, activeItem, onNavigate }) {
                         <button
                             type="button"
                             onClick={onClose}
-                            className="p-2 text-[#5a6b75] hover:text-[#1e2a32] hover:bg-[#FFD2C2]/30 rounded-xl lg:hidden transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#789A99]"
+                            className="p-2 text-[#4A3C35] hover:text-[#3E2723] hover:bg-[#90353D]/10 rounded-xl lg:hidden transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#90353D]"
                             aria-label="Close sidebar"
                         >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -64,7 +64,7 @@ export default function Sidebar({ isOpen, onClose, activeItem, onNavigate }) {
                         <button
                             type="button"
                             onClick={() => setCollapsed(!collapsed)}
-                            className="hidden lg:flex p-2 text-[#5a6b75] hover:text-[#1e2a32] hover:bg-[#FFD2C2]/30 rounded-xl transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#789A99]"
+                            className="hidden lg:flex p-2 text-[#4A3C35] hover:text-[#3E2723] hover:bg-[#90353D]/10 rounded-xl transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#90353D]"
                             aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
                         >
                             <svg className={`w-5 h-5 transition-transform duration-300 ${collapsed ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -84,24 +84,24 @@ export default function Sidebar({ isOpen, onClose, activeItem, onNavigate }) {
                                     className={`
                     flex items-center gap-3 px-4 py-3 rounded-xl
                     transition-all duration-300 ease-out group
-                    focus:outline-none focus-visible:ring-2 focus-visible:ring-[#789A99]
+                    focus:outline-none focus-visible:ring-2 focus-visible:ring-[#90353D]
                     hover:scale-[1.02]
                     ${isActive
-                                            ? 'bg-[#789A99] text-white shadow-lg shadow-[#789A99]/30'
-                                            : 'text-[#5a6b75] hover:bg-[#FFD2C2]/30 hover:text-[#1e2a32]'
+                                            ? 'bg-[#90353D] text-[#F4EDE3] shadow-lg shadow-[#90353D]/25'
+                                            : 'text-[#4A3C35] hover:bg-[#90353D]/10 hover:text-[#3E2723]'
                                         }
                   `}
                                     style={{ animationDelay: `${index * 50}ms` }}
                                     aria-current={isActive ? 'page' : undefined}
                                 >
-                                    <span className={`flex-shrink-0 ${isActive ? 'text-white' : 'text-[#8a9aa4] group-hover:text-[#789A99]'}`}>
+                                    <span className={`flex-shrink-0 ${isActive ? 'text-[#F4EDE3]' : 'text-[#9B8B7E] group-hover:text-[#90353D]'}`}>
                                         {item.icon}
                                     </span>
                                     {!collapsed && (
                                         <>
                                             <span className="flex-1 font-medium">{item.name}</span>
                                             {item.badge && (
-                                                <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${isActive ? 'bg-white/20 text-white' : 'bg-[#789A99]/15 text-[#789A99]'
+                                                <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${isActive ? 'bg-white/20 text-[#F4EDE3]' : 'bg-[#90353D]/15 text-[#90353D]'
                                                     }`}>
                                                     {item.badge}
                                                 </span>
@@ -113,18 +113,18 @@ export default function Sidebar({ isOpen, onClose, activeItem, onNavigate }) {
                         })}
                     </nav>
 
-                    <div className="p-4 border-t-2 border-[#e8e0dc]">
+                    <div className="p-4 border-t-2 border-[#90353D]/20">
                         {!collapsed ? (
-                            <div className="p-5 bg-gradient-to-br from-[#FFD2C2] to-[#f5b8a3] rounded-2xl animate-float">
-                                <h4 className="font-semibold text-[#1e2a32] mb-1">Upgrade to Pro</h4>
-                                <p className="text-sm text-[#5a6b75] mb-4">Get unlimited applications and premium features.</p>
-                                <button className="w-full py-2.5 bg-[#789A99] text-white font-semibold rounded-xl hover:bg-[#5f7d7c] hover:scale-105 transition-all duration-300 shadow-lg shadow-[#789A99]/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#789A99]">
+                            <div className="p-5 bg-gradient-to-br from-[#90353D] to-[#6B2830] rounded-2xl animate-float">
+                                <h4 className="font-semibold text-[#F4EDE3] mb-1">Upgrade to Pro</h4>
+                                <p className="text-sm text-[#F4EDE3]/80 mb-4">Get unlimited applications and premium features.</p>
+                                <button className="w-full py-2.5 bg-[#F4EDE3] text-[#90353D] font-semibold rounded-xl hover:bg-white hover:scale-105 transition-all duration-300 shadow-lg shadow-[#3E2723]/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#F4EDE3]">
                                     Upgrade Now
                                 </button>
                             </div>
                         ) : (
                             <button
-                                className="p-3 w-full flex justify-center text-[#789A99] hover:bg-[#FFD2C2]/30 rounded-xl transition-all duration-300"
+                                className="p-3 w-full flex justify-center text-[#90353D] hover:bg-[#90353D]/10 rounded-xl transition-all duration-300"
                                 aria-label="Upgrade to Pro"
                             >
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

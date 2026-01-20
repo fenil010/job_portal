@@ -6,7 +6,7 @@ export default function DashboardLayout({ children, activeItem = 'Dashboard', on
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     return (
-        <div className="min-h-screen bg-[#fdf9f7]">
+        <div className="min-h-screen bg-[#F4EDE3]">
             <Navbar onMenuClick={() => setIsSidebarOpen(true)} user={user} onLogout={onLogout} />
             <div className="flex">
                 <Sidebar

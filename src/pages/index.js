@@ -6,3 +6,9 @@ export { JobSeekerDashboard, EmployerDashboard, AdminDashboard } from './dashboa
 
 // Job Pages
 export { JobListingsPage, JobDetailsPage } from './jobs';
+
+// Communication Pages
+export { default as CommunicationHub } from './CommunicationHub';
+
+// Analytics Pages
+export { default as AnalyticsHub } from './AnalyticsHub';

@@ -23,19 +23,28 @@ const CITY_COORDINATES = {
 };
 
 export default function LocationPicker({
-    value = {},
+    value = '',
     onChange,
-    showRadiusFilter = true,
+    onLocationSelect,
+    placeholder = 'City or ZIP code',
+    showRadiusFilter = false,
 }) {
-    const [location, setLocation] = useState(value.location || '');
-    const [radius, setRadius] = useState(value.radius || '');
+    const [location, setLocation] = useState(value || '');
+    const [radius, setRadius] = useState('');
     const [userLocation, setUserLocation] = useState(null);
     const [isDetecting, setIsDetecting] = useState(false);
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        onChange?.({ location, radius, userCoords: userLocation });
-    }, [location, radius, userLocation]);
+        if (value !== location) {
+            setLocation(value || '');
+        }
+    }, [value]);
+
+    const handleLocationChange = (newLocation) => {
+        setLocation(newLocation);
+        onChange?.(newLocation);
+    };
 
     const detectLocation = () => {
         if (!navigator.geolocation) {
@@ -69,10 +78,13 @@ export default function LocationPicker({
                 });
 
                 if (nearestCity) {
-                    setLocation(nearestCity.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '));
+                    const formattedCity = nearestCity.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                    setLocation(formattedCity);
+                    onChange?.(formattedCity);
+                    onLocationSelect?.({ address: formattedCity, coords });
                 }
             },
-            (err) => {
+            () => {
                 setIsDetecting(false);
                 setError('Unable to detect location. Please enter manually.');
             },
@@ -85,6 +97,7 @@ export default function LocationPicker({
         setRadius('');
         setUserLocation(null);
         setError(null);
+        onChange?.('');
     };
 
     return (
@@ -94,11 +107,11 @@ export default function LocationPicker({
                     <input
                         type="text"
                         value={location}
-                        onChange={(e) => setLocation(e.target.value)}
-                        placeholder="City or ZIP code"
-                        className="w-full pl-10 pr-4 py-3 bg-white border-2 border-[#e8e0dc] rounded-xl text-[#1e2a32] placeholder-[#8a9aa4] focus:border-[#789A99] focus:outline-none transition-colors"
+                        onChange={(e) => handleLocationChange(e.target.value)}
+                        placeholder={placeholder}
+                        className="w-full pl-10 pr-4 py-3 bg-[#FAF6F0] border-2 border-[#90353D]/20 rounded-xl text-[#3E2723] placeholder-[#9B8B7E] focus:border-[#90353D] focus:outline-none transition-colors"
                     />
-                    <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#8a9aa4]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#9B8B7E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
@@ -124,7 +137,7 @@ export default function LocationPicker({
             </div>
 
             {error && (
-                <p className="text-xs text-[#f87171] flex items-center gap-1">
+                <p className="text-xs text-[#C45B5B] flex items-center gap-1">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>
@@ -133,12 +146,12 @@ export default function LocationPicker({
             )}
 
             {userLocation && (
-                <div className="flex items-center gap-2 text-xs text-[#789A99]">
+                <div className="flex items-center gap-2 text-xs text-[#90353D]">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                     <span>Location detected</span>
-                    <button type="button" onClick={clearLocation} className="text-[#8a9aa4] hover:text-[#f87171]">
+                    <button type="button" onClick={clearLocation} className="text-[#9B8B7E] hover:text-[#C45B5B]">
                         Clear
                     </button>
                 </div>

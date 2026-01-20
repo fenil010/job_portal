@@ -23,7 +23,7 @@ const TabsList = forwardRef(function TabsList({ children, className = '', ...pro
         <div
             ref={ref}
             role="tablist"
-            className={`flex items-center gap-1 p-1.5 bg-[#FFD2C2]/30 rounded-xl ${className}`}
+            className={`flex items-center gap-1 p-1.5 bg-[#90353D]/10 rounded-xl ${className}`}
             {...props}
         >
             {children}
@@ -48,11 +48,11 @@ const TabsTrigger = forwardRef(function TabsTrigger({ children, value, disabled 
             className={`
         flex-1 px-5 py-2.5 text-sm font-medium rounded-lg
         transition-all duration-300 ease-out
-        focus:outline-none focus-visible:ring-2 focus-visible:ring-[#789A99]
+        focus:outline-none focus-visible:ring-2 focus-visible:ring-[#90353D]
         disabled:opacity-50 disabled:cursor-not-allowed
         ${isActive
-                    ? 'bg-white text-[#1e2a32] shadow-md'
-                    : 'text-[#5a6b75] hover:text-[#1e2a32] hover:bg-white/50'
+                    ? 'bg-[#FAF6F0] text-[#3E2723] shadow-md'
+                    : 'text-[#4A3C35] hover:text-[#3E2723] hover:bg-[#FAF6F0]/50'
                 }
         ${className}
       `}

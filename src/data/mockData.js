@@ -567,3 +567,110 @@ export const mockActivityLog = [
 export const mockPendingInvites = [
     { id: 1, email: 'new.recruiter@techcorp.com', role: 'recruiter', invitedAt: '2 days ago' },
 ];
+
+// Mock Message Threads
+export const mockMessageThreads = {
+    1: [
+        { id: 1, senderId: 'recruiter', senderName: 'HR Manager', content: 'Hi Sarah, thank you for applying for the Senior Frontend Developer position. We were impressed with your background.', timestamp: '2026-01-18T10:00:00', status: 'read' },
+        { id: 2, senderId: 1, senderName: 'Sarah Connor', senderAvatar: 'SC', content: 'Thank you! I am very excited about this opportunity. I have been following TechCorp for a while and love the work you do.', timestamp: '2026-01-18T10:15:00', status: 'read' },
+        { id: 3, senderId: 'recruiter', senderName: 'HR Manager', content: 'We were impressed with your resume and experience. Would you be available for a video interview next week?', timestamp: '2026-01-18T14:30:00', status: 'read' },
+        { id: 4, senderId: 1, senderName: 'Sarah Connor', senderAvatar: 'SC', content: 'Yes, I am available. What times work best for you? I am flexible most days except Tuesday morning.', timestamp: '2026-01-18T15:00:00', status: 'read' },
+        { id: 5, senderId: 'recruiter', senderName: 'HR Manager', content: 'How about Wednesday, January 22nd at 2 PM EST? We will send you a Zoom link.', timestamp: '2026-01-19T09:00:00', status: 'delivered' },
+        { id: 6, senderId: 1, senderName: 'Sarah Connor', senderAvatar: 'SC', content: 'That works perfectly! I will mark my calendar. Looking forward to it!', timestamp: '2026-01-19T09:30:00', status: 'read' },
+    ],
+    2: [
+        { id: 1, senderId: 'recruiter', senderName: 'HR Manager', content: 'Hi Jane, we are pleased to extend an offer for the Product Manager position.', timestamp: '2026-01-17T14:00:00', status: 'read' },
+        { id: 2, senderId: 3, senderName: 'Jane Smith', senderAvatar: 'JS', content: 'This is wonderful news! I am very excited. Can we discuss the details?', timestamp: '2026-01-17T14:30:00', status: 'read' },
+    ],
+    3: [
+        { id: 1, senderId: 'recruiter', senderName: 'HR Manager', content: 'Hi Alex, thank you for your interest in our DevOps Engineer position. We have received your application.', timestamp: '2026-01-16T10:00:00', status: 'read' },
+    ],
+};
+
+// Mock Notifications for Communication Hub
+export const mockCommunicationNotifications = [
+    { id: 1, type: 'interview', title: 'Interview Scheduled', message: 'Your interview with Sarah Connor is scheduled for Jan 22, 2:00 PM EST', time: '2 hours ago', isRead: false, channel: 'in-app' },
+    { id: 2, type: 'application', title: 'New Application', message: 'Alex Chen applied for the DevOps Engineer position', time: '5 hours ago', isRead: false, channel: 'email' },
+    { id: 3, type: 'message', title: 'New Message', message: 'Jane Smith replied to your message about the offer discussion', time: '1 day ago', isRead: true, channel: 'in-app' },
+    { id: 4, type: 'feedback', title: 'Feedback Submitted', message: 'Tech Lead submitted interview feedback for John Wick', time: '2 days ago', isRead: true, channel: 'in-app' },
+    { id: 5, type: 'application', title: 'Application Viewed', message: 'DataFlow Systems viewed your application for Backend Engineer', time: '3 days ago', isRead: true, channel: 'email' },
+    { id: 6, type: 'interview', title: 'Interview Reminder', message: 'Reminder: Interview with Jane Smith tomorrow at 10:00 AM', time: '1 day ago', isRead: true, channel: 'sms' },
+];
+
+// Mock Interview Feedback
+export const mockInterviewFeedback = [
+    {
+        id: 1,
+        candidateId: 1,
+        candidateName: 'Sarah Connor',
+        interviewId: 1,
+        reviewerId: 4,
+        reviewerName: 'Tech Lead',
+        date: 'Jan 20, 2026',
+        overallRating: 4,
+        technicalSkills: 5,
+        communication: 4,
+        cultureFit: 4,
+        problemSolving: 4,
+        strengths: 'Excellent technical skills with deep knowledge of React and TypeScript. Great problem-solving ability demonstrated during the coding challenge.',
+        improvements: 'Could improve on explaining complex technical concepts to non-technical stakeholders.',
+        recommendation: 'yes',
+        privateNotes: 'Strong candidate, would be a great addition to the team.',
+    },
+    {
+        id: 2,
+        candidateId: 1,
+        candidateName: 'Sarah Connor',
+        interviewId: 1,
+        reviewerId: 1,
+        reviewerName: 'HR Manager',
+        date: 'Jan 20, 2026',
+        overallRating: 4,
+        technicalSkills: 4,
+        communication: 5,
+        cultureFit: 5,
+        problemSolving: 3,
+        strengths: 'Great communication skills and cultural fit. Very enthusiastic about the role and company mission.',
+        improvements: 'Limited experience with our specific tech stack, but shows strong learning ability.',
+        recommendation: 'strong_yes',
+        privateNotes: 'Very personable and would fit well with the team culture.',
+    },
+    {
+        id: 3,
+        candidateId: 2,
+        candidateName: 'John Wick',
+        interviewId: 3,
+        reviewerId: 4,
+        reviewerName: 'Tech Lead',
+        date: 'Jan 19, 2026',
+        overallRating: 3,
+        technicalSkills: 4,
+        communication: 3,
+        cultureFit: 3,
+        problemSolving: 4,
+        strengths: 'Solid full-stack experience and good understanding of system architecture.',
+        improvements: 'Communication could be more clear. Seemed nervous during the interview.',
+        recommendation: 'maybe',
+        privateNotes: 'Needs more evaluation, consider a second round.',
+    },
+];
+
+// Mock Video Interview Settings
+export const mockVideoInterviewSettings = [
+    {
+        id: 1,
+        candidateId: 1,
+        platform: 'zoom',
+        meetingLink: 'https://zoom.us/j/1234567890',
+        meetingId: '123 456 7890',
+        passcode: 'abc123',
+        date: '2026-01-22',
+        time: '14:00',
+        duration: '60',
+        interviewers: [4, 5],
+        sendReminders: true,
+        recordingEnabled: false,
+        waitingRoomEnabled: true,
+    },
+];
+

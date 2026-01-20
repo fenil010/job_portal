@@ -42,10 +42,10 @@ const Checkbox = forwardRef(function Checkbox(
                 <div
                     className={`
                         ${sizes[size]}
-                        border-2 border-[#e8e0dc] rounded-md
-                        bg-white
-                        peer-checked:bg-[#789A99] peer-checked:border-[#789A99]
-                        peer-focus-visible:ring-2 peer-focus-visible:ring-[#789A99] peer-focus-visible:ring-offset-2
+                        border-2 border-[#90353D]/25 rounded-md
+                        bg-[#FAF6F0]
+                        peer-checked:bg-[#90353D] peer-checked:border-[#90353D]
+                        peer-focus-visible:ring-2 peer-focus-visible:ring-[#90353D] peer-focus-visible:ring-offset-2
                         transition-all duration-200
                         flex items-center justify-center
                     `}
@@ -67,7 +67,7 @@ const Checkbox = forwardRef(function Checkbox(
                 </div>
             </div>
             {label && (
-                <span className={`${labelSizes[size]} text-[#1e2a32]`}>{label}</span>
+                <span className={`${labelSizes[size]} text-[#3E2723]`}>{label}</span>
             )}
         </label>
     );

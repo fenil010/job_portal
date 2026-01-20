@@ -102,9 +102,9 @@ export default function AdvancedSearchBar({
                             onChange={handleInputChange}
                             onKeyDown={handleKeyDown}
                             placeholder={placeholder}
-                            className="w-full pl-12 pr-12 py-4 bg-white border-2 border-[#e8e0dc] rounded-2xl text-[#1e2a32] placeholder-[#8a9aa4] focus:border-[#789A99] focus:outline-none transition-all duration-300 text-lg"
+                            className="w-full pl-12 pr-12 py-4 bg-[#FAF6F0] border-2 border-[#90353D]/20 rounded-2xl text-[#3E2723] placeholder-[#9B8B7E] focus:border-[#90353D] focus:outline-none transition-all duration-300 text-lg"
                         />
-                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#789A99]">
+                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#90353D]">
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
@@ -112,7 +112,7 @@ export default function AdvancedSearchBar({
                         <button
                             type="button"
                             onClick={() => setShowHelp(!showHelp)}
-                            className="absolute right-4 top-1/2 -translate-y-1/2 p-1 text-[#8a9aa4] hover:text-[#789A99] transition-colors"
+                            className="absolute right-4 top-1/2 -translate-y-1/2 p-1 text-[#9B8B7E] hover:text-[#90353D] transition-colors"
                             title="Search syntax help"
                         >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -123,15 +123,15 @@ export default function AdvancedSearchBar({
 
                     {/* Suggestions dropdown */}
                     {showSuggestions && (
-                        <div className="absolute top-full left-0 right-0 mt-2 bg-white border-2 border-[#e8e0dc] rounded-xl shadow-xl z-20 overflow-hidden animate-fade-in">
+                        <div className="absolute top-full left-0 right-0 mt-2 bg-[#FAF6F0] border-2 border-[#90353D]/20 rounded-xl shadow-xl z-20 overflow-hidden animate-fade-in">
                             {filteredSuggestions.map((suggestion, idx) => (
                                 <button
                                     key={idx}
                                     type="button"
                                     onClick={() => handleSuggestionClick(suggestion)}
-                                    className="w-full px-4 py-3 text-left hover:bg-[#FFD2C2]/20 text-[#1e2a32] transition-colors flex items-center gap-3"
+                                    className="w-full px-4 py-3 text-left hover:bg-[#90353D]/10 text-[#3E2723] transition-colors flex items-center gap-3"
                                 >
-                                    <svg className="w-4 h-4 text-[#8a9aa4]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-4 h-4 text-[#9B8B7E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                     </svg>
                                     {suggestion}
@@ -160,13 +160,13 @@ export default function AdvancedSearchBar({
 
             {/* Operator buttons */}
             <div className="flex flex-wrap items-center gap-2 mt-3">
-                <span className="text-sm text-[#8a9aa4]">Quick operators:</span>
+                <span className="text-sm text-[#9B8B7E]">Quick operators:</span>
                 {SEARCH_OPERATORS.map((op) => (
                     <button
                         key={op}
                         type="button"
                         onClick={() => insertOperator(op)}
-                        className="px-3 py-1.5 text-xs font-medium bg-[#FFD2C2]/30 text-[#5a6b75] rounded-lg hover:bg-[#789A99] hover:text-white transition-all"
+                        className="px-3 py-1.5 text-xs font-medium bg-[#90353D]/10 text-[#4A3C35] rounded-lg hover:bg-[#90353D] hover:text-[#F4EDE3] transition-all"
                     >
                         {op}
                     </button>
@@ -195,10 +195,10 @@ export default function AdvancedSearchBar({
             {showHelp && (
                 <div
                     ref={helpRef}
-                    className="absolute top-full right-0 mt-2 w-80 bg-white border-2 border-[#e8e0dc] rounded-xl shadow-2xl z-30 p-4 animate-scale-in"
+                    className="absolute top-full right-0 mt-2 w-80 bg-[#FAF6F0] border-2 border-[#90353D]/20 rounded-xl shadow-2xl z-30 p-4 animate-scale-in"
                 >
-                    <h4 className="font-semibold text-[#1e2a32] mb-3 flex items-center gap-2">
-                        <svg className="w-5 h-5 text-[#789A99]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <h4 className="font-semibold text-[#3E2723] mb-3 flex items-center gap-2">
+                        <svg className="w-5 h-5 text-[#90353D]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         Search Syntax
@@ -206,10 +206,10 @@ export default function AdvancedSearchBar({
                     <div className="space-y-3">
                         {SYNTAX_HELP.map((item, idx) => (
                             <div key={idx} className="flex flex-col">
-                                <code className="text-sm font-mono bg-[#FFD2C2]/20 px-2 py-1 rounded text-[#1e2a32]">
+                                <code className="text-sm font-mono bg-[#90353D]/10 px-2 py-1 rounded text-[#3E2723]">
                                     {item.syntax}
                                 </code>
-                                <span className="text-xs text-[#8a9aa4] mt-1">{item.description}</span>
+                                <span className="text-xs text-[#9B8B7E] mt-1">{item.description}</span>
                             </div>
                         ))}
                     </div>

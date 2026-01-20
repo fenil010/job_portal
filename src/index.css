@@ -1,21 +1,37 @@
 @import "tailwindcss";
 
 :root {
-    --color-primary: #FFD2C2;
-    --color-primary-dark: #f5b8a3;
-    --color-primary-light: #fff0eb;
-    --color-secondary: #789A99;
-    --color-secondary-dark: #5f7d7c;
-    --color-secondary-light: #a3bfbe;
-    --color-background: #fdf9f7;
-    --color-surface: #ffffff;
-    --color-text: #1e2a32;
-    --color-text-secondary: #5a6b75;
-    --color-text-muted: #8a9aa4;
-    --color-border: #e8e0dc;
+    /* Cashmere / Royal Garnet Theme */
+    --color-primary: #F4EDE3;
+    /* Cashmere - Primary Background */
+    --color-primary-dark: #90353D;
+    /* Royal Garnet - Primary Accent */
+    --color-primary-light: #FAF6F0;
+    /* Light Background */
+    --color-secondary: #6B2830;
+    /* Darker Garnet - Secondary Accent */
+    --color-secondary-dark: #5A2028;
+    /* Darkest Garnet - Hover States */
+    --color-secondary-light: #A64D56;
+    /* Lighter Garnet */
+    --color-background: #F4EDE3;
+    /* Cashmere */
+    --color-surface: #FAF6F0;
+    /* Light Background for cards */
+    --color-text: #3E2723;
+    /* Dark Brown - Headings */
+    --color-text-secondary: #4A3C35;
+    /* Body Text */
+    --color-text-muted: #9B8B7E;
+    /* Warm Taupe - Muted Text */
+    --color-border: rgba(144, 53, 61, 0.25);
+    /* Royal Garnet at 25% */
     --color-success: #4ade80;
-    --color-warning: #fbbf24;
-    --color-error: #f87171;
+    /* Green success */
+    --color-warning: #D4A574;
+    /* Warm copper warning */
+    --color-error: #C45B5B;
+    /* Muted red error */
 }
 
 * {
@@ -163,7 +179,7 @@ body {
 
     50% {
         transform: scale(1.02);
-        box-shadow: 0 0 0 8px rgba(120, 154, 153, 0);
+        box-shadow: 0 0 0 8px rgba(182, 110, 121, 0);
     }
 }
 
@@ -196,7 +212,7 @@ body {
 }
 
 .animate-shimmer {
-    background: linear-gradient(90deg, #f0e8e4 25%, #fdf9f7 50%, #f0e8e4 75%);
+    background: linear-gradient(90deg, #FAF6F0 25%, #F4EDE3 50%, #FAF6F0 75%);
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
 }
@@ -271,8 +287,8 @@ body {
 }
 
 .focus-glow:focus {
-    box-shadow: 0 0 0 3px rgba(120, 154, 153, 0.3);
-    border-color: var(--color-secondary);
+    box-shadow: 0 0 0 3px rgba(182, 110, 121, 0.3);
+    border-color: var(--color-primary-dark);
 }
 
 .hover-lift {
@@ -281,11 +297,11 @@ body {
 
 .hover-lift:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 24px -8px rgba(30, 42, 50, 0.15);
+    box-shadow: 0 12px 24px -8px rgba(182, 110, 121, 0.25);
 }
 
 .skeleton {
-    background: linear-gradient(90deg, #f0e8e4 25%, #fdf9f7 50%, #f0e8e4 75%);
+    background: linear-gradient(90deg, #FFF0F0 25%, #FADADD 50%, #FFF0F0 75%);
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
     border-radius: 8px;

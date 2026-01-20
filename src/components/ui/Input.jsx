@@ -10,10 +10,9 @@ const Input = forwardRef(function Input(
         leftIcon,
         rightIcon,
         showPasswordToggle = false,
-        disabled = false,
-        required = false,
         className = '',
         containerClassName = '',
+        required = false,
         ...props
     },
     ref
@@ -24,38 +23,35 @@ const Input = forwardRef(function Input(
     const inputType = type === 'password' && showPassword ? 'text' : type;
 
     const baseInputStyles = `
-    w-full px-4 py-3 rounded-xl border-2 bg-white
-    text-[#1e2a32] placeholder-[#8a9aa4]
+    w-full px-4 py-3 rounded-xl border-2 bg-[#FAF6F0]
+    text-[#3E2723] placeholder-[#9B8B7E]
     transition-all duration-300 ease-out
     focus:outline-none
-    disabled:bg-[#f0e8e4] disabled:text-[#8a9aa4] disabled:cursor-not-allowed
+    disabled:bg-[#F4EDE3] disabled:text-[#9B8B7E] disabled:cursor-not-allowed
   `;
 
     const stateStyles = error
-        ? 'border-[#f87171] focus:border-[#f87171] focus:shadow-[0_0_0_3px_rgba(248,113,113,0.2)]'
-        : `border-[#e8e0dc] focus:border-[#789A99] focus:shadow-[0_0_0_3px_rgba(120,154,153,0.2)]`;
+        ? 'border-[#C45B5B] focus:border-[#C45B5B] focus:shadow-[0_0_0_3px_rgba(196,91,91,0.2)]'
+        : `border-[#90353D]/20 focus:border-[#90353D] focus:shadow-[0_0_0_3px_rgba(144,53,61,0.2)]`;
 
-    const paddingStyles = `
-    ${leftIcon ? 'pl-12' : ''}
-    ${rightIcon || (type === 'password' && showPasswordToggle) ? 'pr-12' : ''}
-  `;
+    const iconPadding = leftIcon ? 'pl-11' : '';
+    const rightPadding = rightIcon || showPasswordToggle ? 'pr-11' : '';
 
     return (
         <div className={`w-full ${containerClassName}`}>
             {label && (
                 <label
                     htmlFor={inputId}
-                    className={`block text-sm font-medium mb-2 transition-colors duration-300 ${isFocused ? 'text-[#789A99]' : 'text-[#5a6b75]'
+                    className={`block text-sm font-medium mb-2 transition-colors duration-300 ${isFocused ? 'text-[#90353D]' : 'text-[#4A3C35]'
                         }`}
                 >
                     {label}
-                    {required && <span className="text-[#f87171] ml-1">*</span>}
+                    {required && <span className="text-[#C45B5B] ml-1">*</span>}
                 </label>
             )}
-            <div className="relative group">
+            <div className="relative">
                 {leftIcon && (
-                    <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors duration-300 ${isFocused ? 'text-[#789A99]' : 'text-[#8a9aa4]'
-                        }`}>
+                    <div className={`absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors duration-300 ${isFocused ? 'text-[#90353D]' : 'text-[#9B8B7E]'}`}>
                         {leftIcon}
                     </div>
                 )}
@@ -63,20 +59,18 @@ const Input = forwardRef(function Input(
                     ref={ref}
                     id={inputId}
                     type={inputType}
-                    disabled={disabled}
-                    required={required}
-                    onFocus={() => setIsFocused(true)}
-                    onBlur={() => setIsFocused(false)}
-                    aria-invalid={error ? 'true' : 'false'}
+                    className={`${baseInputStyles} ${stateStyles} ${iconPadding} ${rightPadding} ${className}`}
+                    onFocus={(e) => { setIsFocused(true); props.onFocus?.(e); }}
+                    onBlur={(e) => { setIsFocused(false); props.onBlur?.(e); }}
+                    aria-invalid={!!error}
                     aria-describedby={error ? `${inputId}-error` : helperText ? `${inputId}-helper` : undefined}
-                    className={`${baseInputStyles} ${stateStyles} ${paddingStyles} ${className}`}
                     {...props}
                 />
-                {type === 'password' && showPasswordToggle && (
+                {showPasswordToggle && type === 'password' && (
                     <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-[#8a9aa4] hover:text-[#789A99] focus:outline-none transition-colors duration-300"
+                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#9B8B7E] hover:text-[#90353D] transition-colors duration-300 focus:outline-none"
                         aria-label={showPassword ? 'Hide password' : 'Show password'}
                     >
                         {showPassword ? (
@@ -92,18 +86,16 @@ const Input = forwardRef(function Input(
                     </button>
                 )}
                 {rightIcon && !showPasswordToggle && (
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[#8a9aa4]">
-                        {rightIcon}
-                    </div>
+                    <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#9B8B7E]">{rightIcon}</div>
                 )}
             </div>
             {error && (
-                <p id={`${inputId}-error`} className="mt-2 text-sm text-[#f87171] animate-fade-in-up" role="alert">
+                <p id={`${inputId}-error`} className="mt-2 text-sm text-[#C45B5B] animate-fade-in-up" role="alert">
                     {error}
                 </p>
             )}
             {helperText && !error && (
-                <p id={`${inputId}-helper`} className="mt-2 text-sm text-[#8a9aa4]">
+                <p id={`${inputId}-helper`} className="mt-2 text-sm text-[#9B8B7E]">
                     {helperText}
                 </p>
             )}

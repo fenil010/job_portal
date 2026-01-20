@@ -74,25 +74,25 @@ export default function SavedSearches({
 
     return (
         <>
-            <div className="bg-white rounded-2xl border-2 border-[#e8e0dc] overflow-hidden animate-fade-in-up">
+            <div className="bg-[#FAF6F0] rounded-2xl border-2 border-[#90353D]/20 overflow-hidden animate-fade-in-up">
                 <button
                     type="button"
                     onClick={() => setIsExpanded(!isExpanded)}
-                    className="w-full flex items-center justify-between p-4 hover:bg-[#FFD2C2]/10 transition-colors"
+                    className="w-full flex items-center justify-between p-4 hover:bg-[#90353D]/5 transition-colors"
                 >
                     <div className="flex items-center gap-3">
-                        <div className="p-2 bg-[#789A99]/10 rounded-xl text-[#789A99]">
+                        <div className="p-2 bg-[#90353D]/10 rounded-xl text-[#90353D]">
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
                             </svg>
                         </div>
-                        <span className="font-semibold text-[#1e2a32]">Saved Searches</span>
-                        <span className="px-2 py-0.5 text-xs font-medium bg-[#FFD2C2]/30 text-[#5a6b75] rounded-full">
+                        <span className="font-semibold text-[#3E2723]">Saved Searches</span>
+                        <span className="px-2 py-0.5 text-xs font-medium bg-[#90353D]/15 text-[#90353D] rounded-full">
                             {savedSearches.length}
                         </span>
                     </div>
                     <svg
-                        className={`w-5 h-5 text-[#8a9aa4] transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}
+                        className={`w-5 h-5 text-[#9B8B7E] transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}
                         fill="none" stroke="currentColor" viewBox="0 0 24 24"
                     >
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -100,22 +100,22 @@ export default function SavedSearches({
                 </button>
 
                 {isExpanded && (
-                    <div className="border-t-2 border-[#e8e0dc] divide-y divide-[#e8e0dc] max-h-60 overflow-y-auto">
+                    <div className="border-t-2 border-[#90353D]/20 divide-y divide-[#90353D]/10 max-h-60 overflow-y-auto">
                         {savedSearches.map((search) => (
-                            <div key={search.id} className="flex items-center gap-3 p-3 hover:bg-[#FFD2C2]/10 transition-colors group">
+                            <div key={search.id} className="flex items-center gap-3 p-3 hover:bg-[#90353D]/5 transition-colors group">
                                 <button
                                     type="button"
                                     onClick={() => loadSearch(search)}
                                     className="flex-1 text-left"
                                 >
-                                    <p className="font-medium text-[#1e2a32] text-sm">{search.name}</p>
-                                    <p className="text-xs text-[#8a9aa4] truncate">{search.query}</p>
+                                    <p className="font-medium text-[#3E2723] text-sm">{search.name}</p>
+                                    <p className="text-xs text-[#9B8B7E] truncate">{search.query}</p>
                                 </button>
                                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                     <button
                                         type="button"
                                         onClick={() => loadSearch(search)}
-                                        className="p-1.5 text-[#789A99] hover:bg-[#789A99]/10 rounded-lg transition-all"
+                                        className="p-1.5 text-[#90353D] hover:bg-[#90353D]/10 rounded-lg transition-all"
                                         title="Run search"
                                     >
                                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -125,7 +125,7 @@ export default function SavedSearches({
                                     <button
                                         type="button"
                                         onClick={() => deleteSearch(search.id)}
-                                        className="p-1.5 text-[#f87171] hover:bg-[#f87171]/10 rounded-lg transition-all"
+                                        className="p-1.5 text-[#C45B5B] hover:bg-[#C45B5B]/10 rounded-lg transition-all"
                                         title="Delete"
                                     >
                                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -153,9 +153,9 @@ export default function SavedSearches({
                         onChange={(e) => setNewSearchName(e.target.value)}
                         autoFocus
                     />
-                    <div className="p-3 bg-[#FFD2C2]/20 rounded-xl">
-                        <p className="text-xs text-[#8a9aa4] mb-1">Query</p>
-                        <p className="text-sm font-mono text-[#1e2a32]">{searchToSave}</p>
+                    <div className="p-3 bg-[#90353D]/10 rounded-xl">
+                        <p className="text-xs text-[#9B8B7E] mb-1">Query</p>
+                        <p className="text-sm font-mono text-[#3E2723]">{searchToSave}</p>
                     </div>
                 </div>
                 <ModalFooter>

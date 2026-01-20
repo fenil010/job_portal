@@ -2,8 +2,8 @@ import { forwardRef } from 'react';
 
 const Table = forwardRef(function Table({ children, className = '', ...props }, ref) {
     return (
-        <div className="overflow-x-auto rounded-xl border-2 border-[#e8e0dc]">
-            <table ref={ref} className={`w-full divide-y divide-[#e8e0dc] ${className}`} {...props}>
+        <div className="overflow-x-auto rounded-xl border-2 border-[#90353D]/20">
+            <table ref={ref} className={`w-full divide-y divide-[#90353D]/20 ${className}`} {...props}>
                 {children}
             </table>
         </div>
@@ -12,7 +12,7 @@ const Table = forwardRef(function Table({ children, className = '', ...props }, 
 
 const TableHeader = forwardRef(function TableHeader({ children, className = '', ...props }, ref) {
     return (
-        <thead ref={ref} className={`bg-[#FFD2C2]/20 ${className}`} {...props}>
+        <thead ref={ref} className={`bg-[#90353D]/10 ${className}`} {...props}>
             {children}
         </thead>
     );
@@ -20,14 +20,14 @@ const TableHeader = forwardRef(function TableHeader({ children, className = '', 
 
 const TableBody = forwardRef(function TableBody({ children, className = '', ...props }, ref) {
     return (
-        <tbody ref={ref} className={`bg-white divide-y divide-[#e8e0dc] ${className}`} {...props}>
+        <tbody ref={ref} className={`bg-[#FAF6F0] divide-y divide-[#90353D]/20 ${className}`} {...props}>
             {children}
         </tbody>
     );
 });
 
 const TableRow = forwardRef(function TableRow({ children, className = '', hoverable = true, ...props }, ref) {
-    const hoverStyles = hoverable ? 'hover:bg-[#FFD2C2]/10 transition-colors duration-300' : '';
+    const hoverStyles = hoverable ? 'hover:bg-[#90353D]/5 transition-colors duration-300' : '';
     return (
         <tr ref={ref} className={`${hoverStyles} ${className}`} {...props}>
             {children}
@@ -40,7 +40,7 @@ const TableHead = forwardRef(function TableHead({ children, className = '', ...p
         <th
             ref={ref}
             scope="col"
-            className={`px-5 py-4 text-left text-xs font-semibold text-[#5a6b75] uppercase tracking-wider ${className}`}
+            className={`px-5 py-4 text-left text-xs font-semibold text-[#4A3C35] uppercase tracking-wider ${className}`}
             {...props}
         >
             {children}
@@ -50,7 +50,7 @@ const TableHead = forwardRef(function TableHead({ children, className = '', ...p
 
 const TableCell = forwardRef(function TableCell({ children, className = '', ...props }, ref) {
     return (
-        <td ref={ref} className={`px-5 py-4 text-sm text-[#5a6b75] ${className}`} {...props}>
+        <td ref={ref} className={`px-5 py-4 text-sm text-[#4A3C35] ${className}`} {...props}>
             {children}
         </td>
     );

@@ -8,6 +8,8 @@ import {
   AdminDashboard,
   JobListingsPage,
   JobDetailsPage,
+  CommunicationHub,
+  AnalyticsHub,
 } from './pages';
 import { mockJobs, mockApplications } from './data/mockData';
 
@@ -204,7 +206,6 @@ function AppContent() {
         );
       case 'Profile':
       case 'Settings':
-      case 'Messages':
         return (
           <JobSeekerDashboard
             {...commonProps}
@@ -212,6 +213,12 @@ function AppContent() {
             applications={applications}
           />
         );
+      case 'Messages':
+      case 'CommunicationHub':
+        return <CommunicationHub {...commonProps} />;
+      case 'Analytics':
+      case 'AnalyticsHub':
+        return <AnalyticsHub {...commonProps} />;
       default:
         return <LoginPage onNavigate={handleNavigate} onLogin={handleLogin} />;
     }

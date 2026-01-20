@@ -67,11 +67,11 @@ const Select = forwardRef(function Select(
             {label && (
                 <label
                     htmlFor={inputId}
-                    className={`block text-sm font-medium mb-2 transition-colors duration-300 ${isFocused ? 'text-[#789A99]' : 'text-[#5a6b75]'
+                    className={`block text-sm font-medium mb-2 transition-colors duration-300 ${isFocused ? 'text-[#90353D]' : 'text-[#4A3C35]'
                         }`}
                 >
                     {label}
-                    {required && <span className="text-[#f87171] ml-1">*</span>}
+                    {required && <span className="text-[#C45B5B] ml-1">*</span>}
                 </label>
             )}
             <div className="relative">
@@ -87,24 +87,24 @@ const Select = forwardRef(function Select(
                     aria-haspopup="listbox"
                     aria-expanded={isOpen}
                     className={`
-            w-full px-4 py-3 pr-10 rounded-xl border-2 bg-white text-left
+            w-full px-4 py-3 pr-10 rounded-xl border-2 bg-[#FAF6F0] text-left
             transition-all duration-300 ease-out
             focus:outline-none
-            disabled:bg-[#f0e8e4] disabled:cursor-not-allowed
+            disabled:bg-[#F4EDE3] disabled:cursor-not-allowed
             ${error
-                            ? 'border-[#f87171] focus:shadow-[0_0_0_3px_rgba(248,113,113,0.2)]'
-                            : `border-[#e8e0dc] focus:border-[#789A99] focus:shadow-[0_0_0_3px_rgba(120,154,153,0.2)]`
+                            ? 'border-[#C45B5B] focus:shadow-[0_0_0_3px_rgba(196,91,91,0.2)]'
+                            : `border-[#90353D]/20 focus:border-[#90353D] focus:shadow-[0_0_0_3px_rgba(144,53,61,0.2)]`
                         }
             ${className}
           `}
                     {...props}
                 >
-                    <span className={selectedOption ? 'text-[#1e2a32]' : 'text-[#8a9aa4]'}>
+                    <span className={selectedOption ? 'text-[#3E2723]' : 'text-[#9B8B7E]'}>
                         {selectedOption?.label || placeholder}
                     </span>
                     <span className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
                         <svg
-                            className={`w-5 h-5 text-[#8a9aa4] transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
+                            className={`w-5 h-5 text-[#9B8B7E] transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
                             fill="none" stroke="currentColor" viewBox="0 0 24 24"
                         >
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -114,7 +114,7 @@ const Select = forwardRef(function Select(
                 {isOpen && (
                     <ul
                         role="listbox"
-                        className="absolute z-10 w-full mt-2 py-2 bg-white rounded-xl border-2 border-[#e8e0dc] shadow-xl shadow-[#1e2a32]/10 max-h-60 overflow-auto animate-fade-in-down"
+                        className="absolute z-10 w-full mt-2 py-2 bg-[#FAF6F0] rounded-xl border-2 border-[#90353D]/20 shadow-xl shadow-[#90353D]/10 max-h-60 overflow-auto animate-fade-in-down"
                     >
                         {options.map((option, index) => (
                             <li
@@ -126,10 +126,10 @@ const Select = forwardRef(function Select(
                                 className={`
                   px-4 py-2.5 text-sm cursor-pointer transition-all duration-200
                   ${value === option.value
-                                        ? 'bg-[#789A99]/15 text-[#5f7d7c] font-medium'
+                                        ? 'bg-[#90353D]/15 text-[#90353D] font-medium'
                                         : highlightedIndex === index
-                                            ? 'bg-[#FFD2C2]/30'
-                                            : 'text-[#5a6b75]'
+                                            ? 'bg-[#90353D]/10'
+                                            : 'text-[#4A3C35]'
                                     }
                 `}
                             >
@@ -137,13 +137,13 @@ const Select = forwardRef(function Select(
                             </li>
                         ))}
                         {options.length === 0 && (
-                            <li className="px-4 py-2.5 text-sm text-[#8a9aa4]">No options available</li>
+                            <li className="px-4 py-2.5 text-sm text-[#9B8B7E]">No options available</li>
                         )}
                     </ul>
                 )}
             </div>
             {error && (
-                <p className="mt-2 text-sm text-[#f87171] animate-fade-in-up" role="alert">{error}</p>
+                <p className="mt-2 text-sm text-[#C45B5B] animate-fade-in-up" role="alert">{error}</p>
             )}
         </div>
     );

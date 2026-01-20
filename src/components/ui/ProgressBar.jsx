@@ -1,20 +1,18 @@
 import { forwardRef } from 'react';
 
 const ProgressBar = forwardRef(function ProgressBar(
-    {
-        value = 0,
-        max = 100,
-        size = 'md',
-        variant = 'primary',
-        showLabel = false,
-        label,
-        animated = false,
-        className = '',
-        ...props
-    },
+    { value = 0, max = 100, variant = 'primary', size = 'md', showLabel = false, className = '', ...props },
     ref
 ) {
-    const percentage = Math.min(Math.max((value / max) * 100, 0), 100);
+    const percentage = Math.min(100, Math.max(0, (value / max) * 100));
+
+    const variants = {
+        primary: 'bg-gradient-to-r from-[#90353D] to-[#6B2830]',
+        secondary: 'bg-[#A64D56]',
+        success: 'bg-[#4ade80]',
+        warning: 'bg-[#fbbf24]',
+        error: 'bg-[#C45B5B]',
+    };
 
     const sizes = {
         sm: 'h-1.5',
@@ -22,31 +20,17 @@ const ProgressBar = forwardRef(function ProgressBar(
         lg: 'h-4',
     };
 
-    const variants = {
-        primary: 'bg-[#789A99]',
-        success: 'bg-[#4ade80]',
-        warning: 'bg-[#fbbf24]',
-        danger: 'bg-[#f87171]',
-        info: 'bg-[#60a5fa]',
-    };
-
     return (
-        <div ref={ref} className={`space-y-1.5 ${className}`} {...props}>
-            {(showLabel || label) && (
-                <div className="flex items-center justify-between text-sm">
-                    <span className="text-[#5a6b75] font-medium">{label}</span>
-                    {showLabel && (
-                        <span className="text-[#1e2a32] font-semibold">{Math.round(percentage)}%</span>
-                    )}
+        <div ref={ref} className={`w-full ${className}`} {...props}>
+            {showLabel && (
+                <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-[#4A3C35]">Progress</span>
+                    <span className="text-sm font-semibold text-[#90353D]">{Math.round(percentage)}%</span>
                 </div>
             )}
-            <div className={`w-full bg-[#e8e0dc] rounded-full overflow-hidden ${sizes[size]}`}>
+            <div className={`w-full bg-[#90353D]/15 rounded-full overflow-hidden ${sizes[size]}`}>
                 <div
-                    className={`
-                        ${sizes[size]} ${variants[variant]} rounded-full
-                        transition-all duration-500 ease-out
-                        ${animated ? 'animate-pulse-soft' : ''}
-                    `}
+                    className={`${variants[variant]} ${sizes[size]} rounded-full transition-all duration-700 ease-out`}
                     style={{ width: `${percentage}%` }}
                     role="progressbar"
                     aria-valuenow={value}
@@ -58,43 +42,42 @@ const ProgressBar = forwardRef(function ProgressBar(
     );
 });
 
-// Stage Progress component for pipeline visualization
 const StageProgress = forwardRef(function StageProgress(
-    {
-        stages = [],
-        currentStage = 0,
-        className = '',
-        ...props
-    },
+    { stages = [], currentStage = 0, className = '', ...props },
     ref
 ) {
     return (
-        <div ref={ref} className={`flex items-center gap-2 ${className}`} {...props}>
+        <div ref={ref} className={`flex items-center justify-between ${className}`} {...props}>
             {stages.map((stage, index) => (
-                <div key={index} className="flex items-center">
-                    <div
-                        className={`
-                            w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold
-                            transition-all duration-300
-                            ${index < currentStage
-                                ? 'bg-[#789A99] text-white'
-                                : index === currentStage
-                                    ? 'bg-[#FFD2C2] text-[#1e2a32] ring-2 ring-[#789A99]'
-                                    : 'bg-[#e8e0dc] text-[#8a9aa4]'
-                            }
-                        `}
-                    >
-                        {index < currentStage ? (
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                            </svg>
-                        ) : (
-                            index + 1
-                        )}
+                <div key={index} className="flex items-center flex-1">
+                    <div className="flex flex-col items-center">
+                        <div
+                            className={`
+                w-10 h-10 rounded-xl flex items-center justify-center text-sm font-semibold
+                transition-all duration-500 ease-out
+                ${index < currentStage
+                                    ? 'bg-[#90353D] text-white'
+                                    : index === currentStage
+                                        ? 'bg-[#FAF6F0] text-[#3E2723] ring-2 ring-[#90353D]'
+                                        : 'bg-[#90353D]/15 text-[#9B8B7E]'
+                                }
+              `}
+                        >
+                            {index < currentStage ? (
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                </svg>
+                            ) : (
+                                index + 1
+                            )}
+                        </div>
+                        <span className={`mt-2 text-xs font-medium ${index <= currentStage ? 'text-[#3E2723]' : 'text-[#9B8B7E]'}`}>
+                            {stage}
+                        </span>
                     </div>
                     {index < stages.length - 1 && (
                         <div
-                            className={`w-12 h-0.5 mx-1 transition-colors duration-300 ${index < currentStage ? 'bg-[#789A99]' : 'bg-[#e8e0dc]'
+                            className={`flex-1 h-0.5 mx-3 transition-all duration-500 ${index < currentStage ? 'bg-[#90353D]' : 'bg-[#90353D]/15'
                                 }`}
                         />
                     )}
