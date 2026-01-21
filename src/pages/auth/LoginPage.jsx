@@ -1,7 +1,13 @@
 import { useState } from 'react';
-import { Button, Input, Card, CardHeader, CardTitle, CardDescription, CardContent } from '../../components/ui';
+import { useNavigate } from 'react-router-dom';
+import { Button, Input, Card, CardHeader, CardTitle, CardDescription, CardContent, useToast } from '../../components/ui';
+import { useAuth } from '../../contexts/AuthContext';
 
-export default function LoginPage({ onNavigate, onLogin }) {
+export default function LoginPage() {
+    const navigate = useNavigate();
+    const { login } = useAuth();
+    const { toast } = useToast();
+
     const [formData, setFormData] = useState({ email: '', password: '' });
     const [rememberMe, setRememberMe] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -11,6 +17,16 @@ export default function LoginPage({ onNavigate, onLogin }) {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
         if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
+    };
+
+    const navigateByRole = (role) => {
+        if (role === 'employer') {
+            navigate('/employer/dashboard');
+        } else if (role === 'admin') {
+            navigate('/admin/dashboard');
+        } else {
+            navigate('/dashboard');
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -28,12 +44,16 @@ export default function LoginPage({ onNavigate, onLogin }) {
         await new Promise((resolve) => setTimeout(resolve, 1500));
         setIsLoading(false);
 
-        onLogin?.({
+        const userData = {
             id: 1,
             name: 'Demo User',
             email: formData.email,
             role: 'jobseeker',
-        });
+        };
+
+        login(userData);
+        toast.success('Welcome back!', { title: 'Logged in as Job Seeker' });
+        navigateByRole(userData.role);
     };
 
     const handleDemoLogin = async (role) => {
@@ -47,7 +67,15 @@ export default function LoginPage({ onNavigate, onLogin }) {
             admin: { id: 3, name: 'Admin User', email: 'admin@jobportal.com', role: 'admin' },
         };
 
-        onLogin?.(demoUsers[role]);
+        const roleLabels = {
+            jobseeker: 'Job Seeker',
+            employer: 'Employer',
+            admin: 'Admin',
+        };
+
+        login(demoUsers[role]);
+        toast.success('Welcome back!', { title: `Logged in as ${roleLabels[role]}` });
+        navigateByRole(role);
     };
 
     return (
@@ -163,13 +191,13 @@ export default function LoginPage({ onNavigate, onLogin }) {
 
                         <p className="mt-8 text-center text-sm text-[#4A3C35]">
                             Don't have an account?{' '}
-                            <a
-                                href="#register"
-                                onClick={(e) => { e.preventDefault(); onNavigate?.('Register'); }}
+                            <button
+                                type="button"
+                                onClick={() => navigate('/register')}
                                 className="font-semibold text-[#90353D] hover:text-[#6B2830] transition-colors"
                             >
                                 Create one now
-                            </a>
+                            </button>
                         </p>
                     </CardContent>
                 </Card>

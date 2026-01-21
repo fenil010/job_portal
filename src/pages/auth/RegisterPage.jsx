@@ -1,12 +1,18 @@
 import { useState } from 'react';
-import { Button, Input, Card, CardHeader, CardTitle, CardDescription, CardContent } from '../../components/ui';
+import { useNavigate } from 'react-router-dom';
+import { Button, Input, Card, CardHeader, CardTitle, CardDescription, CardContent, useToast } from '../../components/ui';
+import { useAuth } from '../../contexts/AuthContext';
 
 const roleOptions = [
     { id: 'jobseeker', title: 'Job Seeker', description: 'Looking for opportunities', icon: <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg> },
     { id: 'employer', title: 'Employer', description: 'Hiring for my company', icon: <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg> },
 ];
 
-export default function RegisterPage({ onNavigate, onRegister }) {
+export default function RegisterPage() {
+    const navigate = useNavigate();
+    const { login } = useAuth();
+    const { toast } = useToast();
+
     const [step, setStep] = useState(1);
     const [role, setRole] = useState('');
     const [formData, setFormData] = useState({ fullName: '', email: '', password: '', confirmPassword: '' });
@@ -23,6 +29,14 @@ export default function RegisterPage({ onNavigate, onRegister }) {
     const handleRoleSelect = (selectedRole) => {
         setRole(selectedRole);
         setStep(2);
+    };
+
+    const navigateByRole = (userRole) => {
+        if (userRole === 'employer') {
+            navigate('/employer/dashboard');
+        } else {
+            navigate('/dashboard');
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -44,12 +58,22 @@ export default function RegisterPage({ onNavigate, onRegister }) {
         await new Promise((resolve) => setTimeout(resolve, 1500));
         setIsLoading(false);
 
-        onRegister?.({
+        const userData = {
             id: Date.now(),
             name: formData.fullName,
             email: formData.email,
             role,
-        });
+        };
+
+        login(userData);
+
+        if (role === 'employer') {
+            toast.success('Account created successfully!', { title: 'Welcome Employer!' });
+        } else {
+            toast.success('Account created successfully!', { title: 'Welcome to JobPortal!' });
+        }
+
+        navigateByRole(role);
     };
 
     return (
@@ -104,7 +128,12 @@ export default function RegisterPage({ onNavigate, onRegister }) {
                                         </button>
                                     ))}
                                 </div>
-                                <p className="mt-6 text-center text-sm text-[#4A3C35]">Already have an account?{' '}<a href="#login" onClick={(e) => { e.preventDefault(); onNavigate?.('Login'); }} className="font-semibold text-[#90353D] hover:text-[#6B2830]">Sign in</a></p>
+                                <p className="mt-6 text-center text-sm text-[#4A3C35]">
+                                    Already have an account?{' '}
+                                    <button type="button" onClick={() => navigate('/login')} className="font-semibold text-[#90353D] hover:text-[#6B2830]">
+                                        Sign in
+                                    </button>
+                                </p>
                             </CardContent>
                         </>
                     ) : (
@@ -119,18 +148,77 @@ export default function RegisterPage({ onNavigate, onRegister }) {
                             </CardHeader>
                             <CardContent>
                                 <form onSubmit={handleSubmit} className="space-y-4">
-                                    <Input label="Full Name" id="register-name" name="fullName" placeholder={role === 'employer' ? 'Company Name' : 'John Doe'} value={formData.fullName} onChange={handleChange} error={errors.fullName} required leftIcon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>} />
-                                    <Input label="Email" id="register-email" name="email" type="email" placeholder="you@example.com" value={formData.email} onChange={handleChange} error={errors.email} required leftIcon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>} />
-                                    <Input label="Password" id="register-password" name="password" type="password" placeholder="Create password" value={formData.password} onChange={handleChange} error={errors.password} required showPasswordToggle helperText="At least 8 characters" leftIcon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>} />
-                                    <Input label="Confirm Password" id="register-confirm" name="confirmPassword" type="password" placeholder="Confirm password" value={formData.confirmPassword} onChange={handleChange} error={errors.confirmPassword} required showPasswordToggle leftIcon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>} />
+                                    <Input
+                                        label="Full Name"
+                                        id="register-name"
+                                        name="fullName"
+                                        placeholder={role === 'employer' ? 'Company Name' : 'John Doe'}
+                                        value={formData.fullName}
+                                        onChange={handleChange}
+                                        error={errors.fullName}
+                                        required
+                                        leftIcon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>}
+                                    />
+                                    <Input
+                                        label="Email"
+                                        id="register-email"
+                                        name="email"
+                                        type="email"
+                                        placeholder="you@example.com"
+                                        value={formData.email}
+                                        onChange={handleChange}
+                                        error={errors.email}
+                                        required
+                                        leftIcon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>}
+                                    />
+                                    <Input
+                                        label="Password"
+                                        id="register-password"
+                                        name="password"
+                                        type="password"
+                                        placeholder="Create password"
+                                        value={formData.password}
+                                        onChange={handleChange}
+                                        error={errors.password}
+                                        required
+                                        showPasswordToggle
+                                        helperText="At least 8 characters"
+                                        leftIcon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>}
+                                    />
+                                    <Input
+                                        label="Confirm Password"
+                                        id="register-confirm"
+                                        name="confirmPassword"
+                                        type="password"
+                                        placeholder="Confirm password"
+                                        value={formData.confirmPassword}
+                                        onChange={handleChange}
+                                        error={errors.confirmPassword}
+                                        required
+                                        showPasswordToggle
+                                        leftIcon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>}
+                                    />
                                     <div className="flex items-start gap-3">
-                                        <input type="checkbox" id="terms" checked={agreedToTerms} onChange={(e) => { setAgreedToTerms(e.target.checked); if (errors.terms) setErrors((prev) => ({ ...prev, terms: '' })); }} className="mt-1 w-5 h-5 rounded-lg border-2 border-[#90353D]/25 text-[#90353D] focus:ring-[#90353D]" />
-                                        <label htmlFor="terms" className="text-sm text-[#4A3C35]">I agree to the <a href="#terms" className="text-[#90353D] hover:underline">Terms</a> and <a href="#privacy" className="text-[#90353D] hover:underline">Privacy Policy</a></label>
+                                        <input
+                                            type="checkbox"
+                                            id="terms"
+                                            checked={agreedToTerms}
+                                            onChange={(e) => { setAgreedToTerms(e.target.checked); if (errors.terms) setErrors((prev) => ({ ...prev, terms: '' })); }}
+                                            className="mt-1 w-5 h-5 rounded-lg border-2 border-[#90353D]/25 text-[#90353D] focus:ring-[#90353D]"
+                                        />
+                                        <label htmlFor="terms" className="text-sm text-[#4A3C35]">
+                                            I agree to the <a href="#terms" className="text-[#90353D] hover:underline">Terms</a> and <a href="#privacy" className="text-[#90353D] hover:underline">Privacy Policy</a>
+                                        </label>
                                     </div>
                                     {errors.terms && <p className="text-sm text-[#C45B5B]">{errors.terms}</p>}
                                     <Button type="submit" className="w-full mt-2" size="lg" loading={isLoading}>Create account</Button>
                                 </form>
-                                <p className="mt-4 text-center text-sm text-[#4A3C35]">Already have an account?{' '}<a href="#login" onClick={(e) => { e.preventDefault(); onNavigate?.('Login'); }} className="font-semibold text-[#90353D] hover:text-[#6B2830]">Sign in</a></p>
+                                <p className="mt-4 text-center text-sm text-[#4A3C35]">
+                                    Already have an account?{' '}
+                                    <button type="button" onClick={() => navigate('/login')} className="font-semibold text-[#90353D] hover:text-[#6B2830]">
+                                        Sign in
+                                    </button>
+                                </p>
                             </CardContent>
                         </>
                     )}

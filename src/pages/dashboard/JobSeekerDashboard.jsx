@@ -1,3 +1,4 @@
+import { useNavigate, useLocation } from 'react-router-dom';
 import { DashboardLayout } from '../../components/layout';
 import { Card, CardHeader, CardTitle, CardContent, Badge, Button, Table, TableHeader, TableBody, TableRow, TableHead, TableCell, Modal, ModalFooter } from '../../components/ui';
 import { ResumeUploader, ResumePreview, ResumeVersionList, ResumeAnalysisModal } from '../../components/resume';
@@ -6,8 +7,14 @@ import { useState, useEffect, useCallback } from 'react';
 import { getResumes, saveResume, deleteResume, setPrimaryResume } from '../../utils/resumeStorage';
 import { parseResume, createMockParsedData } from '../../utils/resumeParser';
 import { analyzeResume, createDemoAnalysis } from '../../utils/resumeAnalyzer';
+import { useAuth } from '../../contexts/AuthContext';
+import { useJobs } from '../../contexts/JobContext';
 
-export default function JobSeekerDashboard({ onNavigate, savedJobs = [], applications = [], user }) {
+export default function JobSeekerDashboard() {
+    const navigate = useNavigate();
+    const location = useLocation();
+    const { user } = useAuth();
+    const { savedJobs, applications } = useJobs();
     const [showResumeModal, setShowResumeModal] = useState(false);
     const [showPreviewModal, setShowPreviewModal] = useState(false);
     const [showAnalysisModal, setShowAnalysisModal] = useState(false);
@@ -128,7 +135,7 @@ export default function JobSeekerDashboard({ onNavigate, savedJobs = [], applica
     }, []);
 
     return (
-        <DashboardLayout activeItem="Dashboard" onNavigate={onNavigate}>
+        <DashboardLayout>
             <div className="max-w-7xl mx-auto">
                 <div className="mb-8 animate-fade-in-down">
                     <h1 className="text-2xl font-bold text-[#1e2a32]">Welcome back, {user?.name?.split(' ')[0] || 'John'}! 👋</h1>
@@ -220,7 +227,7 @@ export default function JobSeekerDashboard({ onNavigate, savedJobs = [], applica
                                     ))}
                                 </div>
                                 <div className="flex gap-3 mt-4">
-                                    <Button variant="primary" size="sm" onClick={() => onNavigate?.('Profile')}>Complete Profile</Button>
+                                    <Button variant="primary" size="sm" onClick={() => navigate('/profile')}>Complete Profile</Button>
                                 </div>
                             </CardContent>
                         </Card>
@@ -228,7 +235,7 @@ export default function JobSeekerDashboard({ onNavigate, savedJobs = [], applica
                         {/* Quick Actions */}
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 animate-fade-in-up stagger-2">
                             <button
-                                onClick={() => onNavigate?.('Jobs')}
+                                onClick={() => navigate('/jobs')}
                                 className="p-4 bg-white border-2 border-[#e8e0dc] rounded-2xl text-left hover:border-[#789A99] hover:shadow-lg transition-all duration-300 group"
                             >
                                 <div className="w-10 h-10 bg-[#789A99]/10 rounded-xl flex items-center justify-center text-[#789A99] mb-3 group-hover:scale-110 transition-transform">
@@ -238,7 +245,7 @@ export default function JobSeekerDashboard({ onNavigate, savedJobs = [], applica
                                 <p className="text-xs text-[#5a6b75]">Find new opportunities</p>
                             </button>
                             <button
-                                onClick={() => onNavigate?.('Saved')}
+                                onClick={() => navigate('/saved')}
                                 className="p-4 bg-white border-2 border-[#e8e0dc] rounded-2xl text-left hover:border-[#FFD2C2] hover:shadow-lg transition-all duration-300 group"
                             >
                                 <div className="w-10 h-10 bg-[#FFD2C2]/30 rounded-xl flex items-center justify-center text-[#789A99] mb-3 group-hover:scale-110 transition-transform">
@@ -248,7 +255,7 @@ export default function JobSeekerDashboard({ onNavigate, savedJobs = [], applica
                                 <p className="text-xs text-[#5a6b75]">{savedJobs.length} saved</p>
                             </button>
                             <button
-                                onClick={() => onNavigate?.('Applications')}
+                                onClick={() => navigate('/applications')}
                                 className="p-4 bg-white border-2 border-[#e8e0dc] rounded-2xl text-left hover:border-[#60a5fa] hover:shadow-lg transition-all duration-300 group"
                             >
                                 <div className="w-10 h-10 bg-[#60a5fa]/10 rounded-xl flex items-center justify-center text-[#60a5fa] mb-3 group-hover:scale-110 transition-transform">
@@ -263,7 +270,7 @@ export default function JobSeekerDashboard({ onNavigate, savedJobs = [], applica
                         <Card variant="default" padding="none" className="animate-fade-in-up stagger-3">
                             <CardHeader className="p-5 border-b-2 border-[#e8e0dc]">
                                 <CardTitle>Recent Applications</CardTitle>
-                                <Button variant="ghost" size="sm" onClick={() => onNavigate?.('Applications')}>View All</Button>
+                                <Button variant="ghost" size="sm" onClick={() => navigate('/applications')}>View All</Button>
                             </CardHeader>
                             {displayApplications.length > 0 ? (
                                 <Table>
@@ -289,7 +296,7 @@ export default function JobSeekerDashboard({ onNavigate, savedJobs = [], applica
                             ) : (
                                 <div className="p-8 text-center">
                                     <p className="text-[#5a6b75]">No applications yet</p>
-                                    <Button variant="primary" size="sm" className="mt-3" onClick={() => onNavigate?.('Jobs')}>Browse Jobs</Button>
+                                    <Button variant="primary" size="sm" className="mt-3" onClick={() => navigate('/jobs')}>Browse Jobs</Button>
                                 </div>
                             )}
                         </Card>

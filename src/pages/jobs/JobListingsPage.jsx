@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { DashboardLayout } from '../../components/layout';
 import { Button, Select, useToast, Modal, ModalFooter, Input } from '../../components/ui';
 import { JobCard, JobFilters } from '../../components/jobs';
@@ -11,6 +12,7 @@ import {
     filterJobsByDistance,
 } from '../../components/search';
 import { mockJobs } from '../../data/mockData';
+import { useJobs } from '../../contexts/JobContext';
 
 const sortOptions = [
     { value: 'relevance', label: 'Most Relevant' },
@@ -19,16 +21,23 @@ const sortOptions = [
     { value: 'salary-low', label: 'Salary: Low to High' },
 ];
 
-export default function JobListingsPage({ onNavigate, onSaveJob, onApplyJob, isJobSaved, savedOnly = false, savedJobs = [], jobs: jobsProp = [] }) {
+export default function JobListingsPage() {
+    const navigate = useNavigate();
+    const location = useLocation();
+    const [searchParams] = useSearchParams();
+    const { jobs: contextJobs, savedJobs, saveJob, applyToJob, isJobSaved } = useJobs();
     const { toast } = useToast();
-    const [searchQuery, setSearchQuery] = useState('');
+
+    // Check if we're on the saved jobs page
+    const savedOnly = location.pathname === '/saved';
+    const [searchQuery, setSearchQuery] = useState(() => searchParams.get('search') || '');
     const [filters, setFilters] = useState({});
     const [sortBy, setSortBy] = useState('relevance');
     const [viewMode, setViewMode] = useState('list');
     const [showSaveModal, setShowSaveModal] = useState(false);
     const [saveSearchName, setSaveSearchName] = useState('');
 
-    const allJobs = savedOnly ? savedJobs : (jobsProp && jobsProp.length ? jobsProp : mockJobs);
+    const allJobs = savedOnly ? savedJobs : (contextJobs && contextJobs.length ? contextJobs : mockJobs);
 
     // Get all unique skills for suggestions
     const skillSuggestions = useMemo(() => {
@@ -157,10 +166,28 @@ export default function JobListingsPage({ onNavigate, onSaveJob, onApplyJob, isJ
         handleSearch(query);
     }, [handleSearch]);
 
-    const handleViewDetails = (job) => onNavigate?.('JobDetails', job);
+    const handleViewDetails = (job) => navigate(`/jobs/${job.id}`);
+
+    const handleApplyJob = useCallback((job) => {
+        const result = applyToJob(job);
+        if (result.success) {
+            toast.success(result.message, { title: 'Application Submitted' });
+        } else {
+            toast.warning(result.message);
+        }
+    }, [applyToJob, toast]);
+
+    const handleSaveJob = useCallback((job) => {
+        saveJob(job);
+        if (isJobSaved(job.id)) {
+            toast.info('Job removed from saved');
+        } else {
+            toast.success('Job saved successfully!');
+        }
+    }, [saveJob, isJobSaved, toast]);
 
     return (
-        <DashboardLayout activeItem={savedOnly ? 'Saved' : 'Jobs'} onNavigate={onNavigate}>
+        <DashboardLayout>
             <div className="max-w-7xl mx-auto">
                 {/* Header */}
                 <div className="mb-6 animate-fade-in-down">
@@ -258,9 +285,9 @@ export default function JobListingsPage({ onNavigate, onSaveJob, onApplyJob, isJ
                                         <JobCard
                                             job={job}
                                             onViewDetails={handleViewDetails}
-                                            onApply={() => onApplyJob?.(job)}
-                                            onSave={() => onSaveJob?.(job)}
-                                            isSaved={isJobSaved?.(job.id)}
+                                            onApply={() => handleApplyJob(job)}
+                                            onSave={() => handleSaveJob(job)}
+                                            isSaved={isJobSaved(job.id)}
                                         />
                                     </div>
                                 ))}

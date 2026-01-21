@@ -1,8 +1,15 @@
+import { useNavigate, useParams } from 'react-router-dom';
 import { DashboardLayout } from '../../components/layout';
-import { Button, Badge, Card, CardHeader, CardTitle, CardContent, Modal, ModalFooter } from '../../components/ui';
+import { Button, Badge, Card, CardHeader, CardTitle, CardContent, Modal, ModalFooter, useToast } from '../../components/ui';
 import { useState } from 'react';
+import { useJobs } from '../../contexts/JobContext';
 
-export default function JobDetailsPage({ job, onNavigate, onSaveJob, onApplyJob, isSaved, hasApplied }) {
+export default function JobDetailsPage() {
+    const navigate = useNavigate();
+    const { id } = useParams();
+    const { getJobById, saveJob, applyToJob, isJobSaved, hasApplied } = useJobs();
+    const { toast } = useToast();
+
     const [showApplyModal, setShowApplyModal] = useState(false);
     const [resumeFile, setResumeFile] = useState(null);
     const [coverLetter, setCoverLetter] = useState('');
@@ -19,7 +26,9 @@ export default function JobDetailsPage({ job, onNavigate, onSaveJob, onApplyJob,
         companySize: '501-1000', companyIndustry: 'Technology',
     };
 
-    const jobData = job || defaultJob;
+    const jobData = id ? (getJobById(id) || defaultJob) : defaultJob;
+    const isSaved = isJobSaved(jobData.id);
+    const alreadyApplied = hasApplied(jobData.id);
 
     const formatSalary = (min, max) => {
         const fmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
@@ -27,21 +36,35 @@ export default function JobDetailsPage({ job, onNavigate, onSaveJob, onApplyJob,
     };
 
     const handleApplyClick = () => {
-        if (hasApplied) return;
+        if (alreadyApplied) return;
         setShowApplyModal(true);
     };
 
     const handleSubmitApplication = () => {
-        onApplyJob?.(jobData);
+        const result = applyToJob(jobData);
+        if (result.success) {
+            toast.success(result.message, { title: 'Application Submitted' });
+        } else {
+            toast.warning(result.message);
+        }
         setShowApplyModal(false);
         setResumeFile(null);
         setCoverLetter('');
     };
 
+    const handleSaveJob = () => {
+        saveJob(jobData);
+        if (isSaved) {
+            toast.info('Job removed from saved');
+        } else {
+            toast.success('Job saved successfully!');
+        }
+    };
+
     return (
-        <DashboardLayout activeItem="Jobs" onNavigate={onNavigate}>
+        <DashboardLayout>
             <div className="max-w-6xl mx-auto">
-                <button onClick={() => onNavigate?.('Jobs')} className="flex items-center gap-2 text-sm text-[#5a6b75] hover:text-[#1e2a32] mb-6 transition-all duration-300 hover:-translate-x-1 animate-fade-in">
+                <button onClick={() => navigate('/jobs')} className="flex items-center gap-2 text-sm text-[#5a6b75] hover:text-[#1e2a32] mb-6 transition-all duration-300 hover:-translate-x-1 animate-fade-in">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                     Back to Jobs
                 </button>
@@ -125,13 +148,13 @@ export default function JobDetailsPage({ job, onNavigate, onSaveJob, onApplyJob,
                             </div>
                             <div className="space-y-3">
                                 <Button
-                                    variant={hasApplied ? 'ghost' : 'primary'}
+                                    variant={alreadyApplied ? 'ghost' : 'primary'}
                                     size="lg"
-                                    className={`w-full ${!hasApplied ? 'animate-subtle-pulse' : ''}`}
+                                    className={`w-full ${!alreadyApplied ? 'animate-subtle-pulse' : ''}`}
                                     onClick={handleApplyClick}
-                                    disabled={hasApplied}
+                                    disabled={alreadyApplied}
                                 >
-                                    {hasApplied ? (
+                                    {alreadyApplied ? (
                                         <>
                                             <svg className="w-5 h-5 mr-2 text-[#4ade80]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -151,7 +174,7 @@ export default function JobDetailsPage({ job, onNavigate, onSaveJob, onApplyJob,
                                     variant={isSaved ? 'secondary' : 'outline'}
                                     size="lg"
                                     className="w-full"
-                                    onClick={() => onSaveJob?.(jobData)}
+                                    onClick={handleSaveJob}
                                 >
                                     <svg className="w-5 h-5 mr-2" fill={isSaved ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
@@ -257,6 +280,6 @@ export default function JobDetailsPage({ job, onNavigate, onSaveJob, onApplyJob,
                     </Button>
                 </ModalFooter>
             </Modal>
-        </DashboardLayout>
+        </DashboardLayout >
     );
 }
