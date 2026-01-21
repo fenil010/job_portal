@@ -13,6 +13,7 @@ const PageLoader = () => (
 );
 
 // Lazy load pages for code splitting
+const LandingPage = lazy(() => import('./pages/LandingPage'));
 const LoginPage = lazy(() => import('./pages/auth/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/auth/RegisterPage'));
 const JobSeekerDashboard = lazy(() => import('./pages/dashboard/JobSeekerDashboard'));
@@ -20,6 +21,8 @@ const EmployerDashboard = lazy(() => import('./pages/dashboard/EmployerDashboard
 const AdminDashboard = lazy(() => import('./pages/dashboard/AdminDashboard'));
 const JobListingsPage = lazy(() => import('./pages/jobs/JobListingsPage'));
 const JobDetailsPage = lazy(() => import('./pages/jobs/JobDetailsPage'));
+const ProfilePage = lazy(() => import('./pages/profile/ProfilePage'));
+const SettingsPage = lazy(() => import('./pages/settings/SettingsPage'));
 const CommunicationHub = lazy(() => import('./pages/CommunicationHub'));
 const AnalyticsHub = lazy(() => import('./pages/AnalyticsHub'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
@@ -32,7 +35,11 @@ const withSuspense = (Component) => (
 );
 
 const router = createBrowserRouter([
-    // Public Routes
+    // Public Routes - Landing page is home
+    {
+        path: '/',
+        element: withSuspense(LandingPage),
+    },
     {
         path: '/login',
         element: withSuspense(LoginPage),
@@ -40,12 +47,6 @@ const router = createBrowserRouter([
     {
         path: '/register',
         element: withSuspense(RegisterPage),
-    },
-
-    // Root redirect
-    {
-        path: '/',
-        element: <Navigate to="/login" replace />,
     },
 
     // Job Seeker Routes
@@ -93,7 +94,15 @@ const router = createBrowserRouter([
         path: '/profile',
         element: (
             <ProtectedRoute allowedRoles={['jobseeker']}>
-                {withSuspense(JobSeekerDashboard)}
+                {withSuspense(ProfilePage)}
+            </ProtectedRoute>
+        ),
+    },
+    {
+        path: '/settings',
+        element: (
+            <ProtectedRoute>
+                {withSuspense(SettingsPage)}
             </ProtectedRoute>
         ),
     },
