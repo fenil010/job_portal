@@ -21,11 +21,24 @@ const Modal = forwardRef(function Modal(
     useEffect(() => {
         if (isOpen) {
             document.addEventListener('keydown', handleEscape);
+            // Track how many modals are open globally to avoid clobbering
+            // the body's overflow when multiple modals are mounted.
+            // eslint-disable-next-line no-underscore-dangle
+            window.__openModalCount = (window.__openModalCount || 0) + 1;
             document.body.style.overflow = 'hidden';
         }
+
         return () => {
-            document.removeEventListener('keydown', handleEscape);
-            document.body.style.overflow = '';
+            // Only remove the listener and decrement the counter if this effect
+            // had previously set up the modal (i.e., isOpen was true).
+            if (isOpen) {
+                document.removeEventListener('keydown', handleEscape);
+                // eslint-disable-next-line no-underscore-dangle
+                window.__openModalCount = Math.max((window.__openModalCount || 1) - 1, 0);
+                if (window.__openModalCount === 0) {
+                    document.body.style.overflow = '';
+                }
+            }
         };
     }, [isOpen, handleEscape]);
 

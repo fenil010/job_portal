@@ -14,9 +14,11 @@ export default function TwoFactorSetup({
     const [code, setCode] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [message, setMessage] = useState('');
+    const [qrFailed, setQrFailed] = useState(false);
 
     const handleStartSetup = async () => {
         setIsLoading(true);
+        setQrFailed(false);
         try {
             const result = await onSetup?.();
             if (result?.success) {
@@ -110,15 +112,16 @@ export default function TwoFactorSetup({
                                 Scan this QR code with your authenticator app
                             </p>
                             <div className="w-48 h-48 bg-[#1e2a32] rounded-xl mx-auto mb-4 flex items-center justify-center">
-                                <img
-                                    src={setupData.qrCodeUrl}
-                                    alt="2FA QR Code"
-                                    className="w-40 h-40"
-                                    onError={(e) => {
-                                        e.target.style.display = 'none';
-                                        e.target.parentElement.innerHTML = '<span class="text-white text-xs">QR Code</span>';
-                                    }}
-                                />
+                                {qrFailed ? (
+                                    <span className="text-white text-xs">QR Code</span>
+                                ) : (
+                                    <img
+                                        src={setupData.qrCodeUrl}
+                                        alt="2FA QR Code"
+                                        className="w-40 h-40"
+                                        onError={() => setQrFailed(true)}
+                                    />
+                                )}
                             </div>
                             <p className="text-xs text-[#8a9aa4] mb-2">Or enter this code manually:</p>
                             <code className="px-3 py-1 bg-[#e8e0dc] rounded text-sm font-mono">

@@ -261,7 +261,7 @@ export default function MessageCenter({
                 size="lg"
             >
                 <div className="space-y-4">
-                    <div>
+                    <div className="animate-fade-in-up stagger-1">
                         <label className="block text-sm font-medium text-[#1e2a32] mb-2">Recipients</label>
                         <Select
                             options={candidates.map((c) => ({ value: c.id, label: `${c.name} (${c.email})` }))}
@@ -270,13 +270,15 @@ export default function MessageCenter({
                             placeholder="Select candidate..."
                         />
                     </div>
-                    <Input
-                        label="Subject"
-                        value={composeData.subject}
-                        onChange={(e) => setComposeData({ ...composeData, subject: e.target.value })}
-                        placeholder="Enter subject..."
-                    />
-                    <div>
+                    <div className="animate-fade-in-up stagger-2">
+                        <Input
+                            label="Subject"
+                            value={composeData.subject}
+                            onChange={(e) => setComposeData({ ...composeData, subject: e.target.value })}
+                            placeholder="Enter subject..."
+                        />
+                    </div>
+                    <div className="animate-fade-in-up stagger-3">
                         <label className="block text-sm font-medium text-[#1e2a32] mb-2">Message</label>
                         <textarea
                             value={composeData.body}
@@ -286,7 +288,7 @@ export default function MessageCenter({
                             className="w-full px-4 py-3 border-2 border-[#e8e0dc] rounded-xl text-[#1e2a32] placeholder-[#8a9aa4] focus:border-[#789A99] focus:outline-none transition-colors resize-none"
                         />
                     </div>
-                    <p className="text-xs text-[#8a9aa4]">
+                    <p className="text-xs text-[#8a9aa4] animate-fade-in-up stagger-4">
                         Tip: Use variables like {"{{candidate_name}}"}, {"{{position}}"}, {"{{company}}"} for personalization
                     </p>
                 </div>
@@ -316,31 +318,37 @@ export default function MessageCenter({
                 size="lg"
             >
                 <div className="space-y-4">
-                    <Input
-                        label="Template Name"
-                        value={editingTemplate?.name || ''}
-                        onChange={(e) => setEditingTemplate({ ...editingTemplate, name: e.target.value })}
-                        placeholder="e.g. Interview Invitation"
-                    />
-                    <Select
-                        label="Template Type"
-                        options={[
-                            { value: 'interview', label: 'Interview' },
-                            { value: 'confirmation', label: 'Confirmation' },
-                            { value: 'rejection', label: 'Rejection' },
-                            { value: 'offer', label: 'Offer' },
-                            { value: 'general', label: 'General' },
-                        ]}
-                        value={editingTemplate?.type || 'general'}
-                        onChange={(value) => setEditingTemplate({ ...editingTemplate, type: value })}
-                    />
-                    <Input
-                        label="Subject Line"
-                        value={editingTemplate?.subject || ''}
-                        onChange={(e) => setEditingTemplate({ ...editingTemplate, subject: e.target.value })}
-                        placeholder="Email subject..."
-                    />
-                    <div>
+                    <div className="animate-fade-in-up stagger-1">
+                        <Input
+                            label="Template Name"
+                            value={editingTemplate?.name || ''}
+                            onChange={(e) => setEditingTemplate({ ...editingTemplate, name: e.target.value })}
+                            placeholder="e.g. Interview Invitation"
+                        />
+                    </div>
+                    <div className="animate-fade-in-up stagger-2">
+                        <Select
+                            label="Template Type"
+                            options={[
+                                { value: 'interview', label: 'Interview' },
+                                { value: 'confirmation', label: 'Confirmation' },
+                                { value: 'rejection', label: 'Rejection' },
+                                { value: 'offer', label: 'Offer' },
+                                { value: 'general', label: 'General' },
+                            ]}
+                            value={editingTemplate?.type || 'general'}
+                            onChange={(value) => setEditingTemplate({ ...editingTemplate, type: value })}
+                        />
+                    </div>
+                    <div className="animate-fade-in-up stagger-3">
+                        <Input
+                            label="Subject Line"
+                            value={editingTemplate?.subject || ''}
+                            onChange={(e) => setEditingTemplate({ ...editingTemplate, subject: e.target.value })}
+                            placeholder="Email subject..."
+                        />
+                    </div>
+                    <div className="animate-fade-in-up stagger-4">
                         <label className="block text-sm font-medium text-[#1e2a32] mb-2">Template Body</label>
                         <textarea
                             value={editingTemplate?.body || ''}
@@ -349,6 +357,11 @@ export default function MessageCenter({
                             rows={10}
                             className="w-full px-4 py-3 border-2 border-[#e8e0dc] rounded-xl text-[#1e2a32] placeholder-[#8a9aa4] focus:border-[#789A99] focus:outline-none transition-colors resize-none font-mono text-sm"
                         />
+                    </div>
+                    <div className="animate-fade-in-up stagger-5">
+                        <p className="text-xs text-[#8a9aa4]">
+                            Available variables: {"{{candidate_name}}"}, {"{{position}}"}, {"{{company}}"}, {"{{recruiter_name}}"}
+                        </p>
                     </div>
                 </div>
                 <ModalFooter>

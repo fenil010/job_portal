@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useCallback } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, Button, Input, Badge, Modal, ModalFooter } from '../ui';
 
 const DEFAULT_TEMPLATES = [
@@ -24,6 +24,7 @@ export default function TemplateManager({ templates: initialTemplates = DEFAULT_
     const [showEditModal, setShowEditModal] = useState(false);
     const [editingTemplate, setEditingTemplate] = useState(null);
     const [showPreview, setShowPreview] = useState(false);
+    const textareaRef = useRef(null);
 
     const categories = [
         { value: 'all', label: 'All Templates' },
@@ -58,7 +59,11 @@ export default function TemplateManager({ templates: initialTemplates = DEFAULT_
         if (editingTemplate.id) {
             setTemplates(prev => prev.map(t => t.id === editingTemplate.id ? editingTemplate : t));
         } else {
-            setTemplates(prev => [...prev, { ...editingTemplate, id: Date.now(), usageCount: 0 }]);
+            // Use crypto.randomUUID() for safer unique ID generation
+            const newId = typeof crypto !== 'undefined' && crypto.randomUUID
+                ? crypto.randomUUID()
+                : `template-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+            setTemplates(prev => [...prev, { ...editingTemplate, id: newId, usageCount: 0 }]);
         }
         onSave?.(editingTemplate);
         setShowEditModal(false);
@@ -70,16 +75,32 @@ export default function TemplateManager({ templates: initialTemplates = DEFAULT_
         onDelete?.(id);
     };
 
-    const insertVariable = (variable) => {
+    const insertVariable = useCallback((variable) => {
         if (!editingTemplate) return;
-        const textarea = document.getElementById('template-body');
-        if (textarea) {
+
+        const textarea = textareaRef.current;
+        const currentBody = editingTemplate.body || '';
+
+        if (textarea && typeof textarea.selectionStart === 'number') {
+            // Insert at cursor position
             const start = textarea.selectionStart;
             const end = textarea.selectionEnd;
-            const newBody = editingTemplate.body.slice(0, start) + variable + editingTemplate.body.slice(end);
+            const newBody = currentBody.slice(0, start) + variable + currentBody.slice(end);
             setEditingTemplate(prev => ({ ...prev, body: newBody }));
+
+            // Restore cursor position after variable insertion
+            setTimeout(() => {
+                if (textarea) {
+                    textarea.focus();
+                    const newPosition = start + variable.length;
+                    textarea.setSelectionRange(newPosition, newPosition);
+                }
+            }, 0);
+        } else {
+            // Append at end if cursor position not available
+            setEditingTemplate(prev => ({ ...prev, body: currentBody + variable }));
         }
-    };
+    }, [editingTemplate]);
 
     const getPreviewContent = (template) => {
         let content = template?.body || '';
@@ -182,7 +203,7 @@ export default function TemplateManager({ templates: initialTemplates = DEFAULT_
                         {showPreview ? (
                             <div className="p-4 bg-[#f5f3f1] rounded-xl text-sm text-[#1e2a32] whitespace-pre-wrap min-h-[200px]">{getPreviewContent(editingTemplate)}</div>
                         ) : (
-                            <textarea id="template-body" value={editingTemplate?.body || ''} onChange={(e) => setEditingTemplate(prev => ({ ...prev, body: e.target.value }))} placeholder="Template content..." rows={8} className="w-full px-4 py-3 border-2 border-[#e8e0dc] rounded-xl focus:border-[#789A99] focus:outline-none resize-none font-mono text-sm" />
+                            <textarea ref={textareaRef} id="template-body" value={editingTemplate?.body || ''} onChange={(e) => setEditingTemplate(prev => ({ ...prev, body: e.target.value }))} placeholder="Template content..." rows={8} className="w-full px-4 py-3 border-2 border-[#e8e0dc] rounded-xl focus:border-[#789A99] focus:outline-none resize-none font-mono text-sm" />
                         )}
                     </div>
                     <div>

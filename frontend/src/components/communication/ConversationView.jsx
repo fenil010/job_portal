@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 import { Button, Badge } from '../ui';
 import MessageThread from './MessageThread';
+import { validateFiles, getAcceptAttribute, formatFileSize } from '../../utils/fileValidation';
 
 export default function ConversationView({
     conversation,
@@ -15,6 +16,7 @@ export default function ConversationView({
     const [messageText, setMessageText] = useState('');
     const [attachments, setAttachments] = useState([]);
     const [isTyping, setIsTyping] = useState(false);
+    const [fileError, setFileError] = useState(null);
     const fileInputRef = useRef(null);
     const textareaRef = useRef(null);
 
@@ -40,26 +42,36 @@ export default function ConversationView({
     };
 
     const handleFileSelect = (e) => {
+        setFileError(null);
         const files = Array.from(e.target.files);
-        const newAttachments = files.map(file => ({
-            name: file.name,
-            size: file.size,
-            type: file.type,
-            file: file,
-        }));
-        setAttachments(prev => [...prev, ...newAttachments]);
+
+        // Validate files using the attachment profile
+        const { validFiles, errors } = validateFiles(files, 'attachment');
+
+        if (errors.length > 0) {
+            // Show first error message
+            setFileError(errors[0].error);
+        }
+
+        if (validFiles.length > 0) {
+            const newAttachments = validFiles.map(file => ({
+                name: file.name,
+                size: file.size,
+                type: file.type,
+                file: file,
+            }));
+            setAttachments(prev => [...prev, ...newAttachments]);
+        }
+
         e.target.value = '';
     };
 
     const removeAttachment = (index) => {
         setAttachments(prev => prev.filter((_, i) => i !== index));
+        setFileError(null);
     };
 
-    const formatFileSize = (bytes) => {
-        if (bytes < 1024) return bytes + ' B';
-        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-        return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-    };
+    // formatFileSize is now imported from fileValidation utility
 
     const otherParticipant = conversation?.participant || {};
 
@@ -152,6 +164,26 @@ export default function ConversationView({
                 </div>
             )}
 
+            {/* File Error Message */}
+            {fileError && (
+                <div className="px-4 py-2 border-t border-[#e8e0dc]">
+                    <div className="flex items-center gap-2 p-2 bg-[#f87171]/10 border border-[#f87171]/30 rounded-lg text-sm text-[#dc2626]">
+                        <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+                        </svg>
+                        <span>{fileError}</span>
+                        <button
+                            onClick={() => setFileError(null)}
+                            className="ml-auto p-0.5 hover:text-[#b91c1c] transition-colors"
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            )}
+
             {/* Input Area */}
             <div className="p-4 border-t-2 border-[#e8e0dc] bg-white">
                 <div className="flex items-end gap-3">
@@ -161,6 +193,7 @@ export default function ConversationView({
                         onChange={handleFileSelect}
                         className="hidden"
                         multiple
+                        accept={getAcceptAttribute('attachment')}
                     />
                     <button
                         onClick={() => fileInputRef.current?.click()}
