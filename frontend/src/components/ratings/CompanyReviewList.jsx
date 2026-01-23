@@ -35,20 +35,20 @@ export default function CompanyReviewList({
     };
 
     return (
-        <div className={`space-y-4 ${className}`}>
+        <div className={`space-y-5 ${className}`}>
             {/* Controls */}
-            <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="flex items-center gap-2">
-                    <span className="text-sm text-[#9B8B7E]">Filter:</span>
-                    <div className="flex gap-1">
+            <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-gradient-to-r from-gray-50 to-slate-50 rounded-2xl border border-gray-200 animate-fade-in">
+                <div className="flex items-center gap-3">
+                    <span className="text-sm font-semibold text-[#3E2723]">Filter:</span>
+                    <div className="flex gap-1.5">
                         {[0, 5, 4, 3, 2, 1].map((rating) => (
                             <button
                                 key={rating}
                                 type="button"
                                 onClick={() => setFilterRating(rating)}
-                                className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-300 ${filterRating === rating
-                                        ? 'bg-[#90353D] text-[#F4EDE3]'
-                                        : 'bg-[#FAF6F0] text-[#4A3C35] hover:bg-[#90353D]/10'
+                                className={`px-3.5 py-2 text-xs font-bold rounded-xl transition-all duration-300 ${filterRating === rating
+                                    ? 'bg-gradient-to-r from-[#90353D] to-[#6B2830] text-white shadow-md'
+                                    : 'bg-white text-[#4A3C35] border-2 border-gray-200 hover:border-[#90353D] hover:text-[#90353D]'
                                     }`}
                             >
                                 {rating === 0 ? 'All' : `${rating}★`}
@@ -57,12 +57,12 @@ export default function CompanyReviewList({
                     </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                    <span className="text-sm text-[#9B8B7E]">Sort:</span>
+                <div className="flex items-center gap-3">
+                    <span className="text-sm font-semibold text-[#3E2723]">Sort:</span>
                     <select
                         value={sortBy}
                         onChange={(e) => setSortBy(e.target.value)}
-                        className="px-3 py-2 text-sm bg-[#FAF6F0] border-2 border-[#90353D]/20 rounded-xl text-[#3E2723] focus:border-[#90353D] focus:outline-none"
+                        className="px-4 py-2.5 text-sm font-medium bg-white border-2 border-gray-200 rounded-xl text-[#3E2723] focus:border-[#90353D] focus:outline-none cursor-pointer hover:border-[#90353D]/50 transition-colors"
                     >
                         <option value="recent">Most Recent</option>
                         <option value="helpful">Most Helpful</option>
@@ -74,27 +74,28 @@ export default function CompanyReviewList({
 
             {/* Reviews List */}
             {sortedReviews.length === 0 ? (
-                <Card padding="lg" className="text-center">
-                    <div className="py-8">
-                        <div className="w-16 h-16 mx-auto mb-4 bg-[#90353D]/10 rounded-full flex items-center justify-center">
-                            <svg className="w-8 h-8 text-[#90353D]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                            </svg>
-                        </div>
-                        <p className="text-[#3E2723] font-medium">No reviews yet</p>
-                        <p className="text-sm text-[#9B8B7E] mt-1">Be the first to share your experience!</p>
+                <div className="text-center py-12 px-6 bg-gradient-to-br from-gray-50 to-slate-50 rounded-2xl border-2 border-dashed border-gray-200 animate-fade-in">
+                    <div className="w-20 h-20 mx-auto mb-5 rounded-2xl bg-gradient-to-br from-[#90353D]/10 to-[#90353D]/20 flex items-center justify-center">
+                        <svg className="w-10 h-10 text-[#90353D]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        </svg>
                     </div>
-                </Card>
+                    <p className="text-[#3E2723] font-bold text-lg">No reviews yet</p>
+                    <p className="text-sm text-[#9B8B7E] mt-2">Be the first to share your experience!</p>
+                </div>
             ) : (
-                sortedReviews.map((review) => (
-                    <ReviewCard
-                        key={review.id}
-                        review={review}
-                        onHelpful={() => onHelpful?.(review.id)}
-                        onReport={() => onReport?.(review.id)}
-                        formatDate={formatDate}
-                    />
-                ))
+                <div className="space-y-4">
+                    {sortedReviews.map((review, idx) => (
+                        <div key={review.id} style={{ animationDelay: `${idx * 100}ms` }} className="animate-fade-in-up">
+                            <ReviewCard
+                                review={review}
+                                onHelpful={() => onHelpful?.(review.id)}
+                                onReport={() => onReport?.(review.id)}
+                                formatDate={formatDate}
+                            />
+                        </div>
+                    ))}
+                </div>
             )}
         </div>
     );
@@ -111,31 +112,37 @@ function ReviewCard({ review, onHelpful, onReport, formatDate }) {
         }
     };
 
+    const getRatingGradient = (rating) => {
+        if (rating >= 4) return 'from-emerald-50 to-green-50 border-emerald-200';
+        if (rating >= 3) return 'from-amber-50 to-yellow-50 border-amber-200';
+        return 'from-red-50 to-rose-50 border-red-200';
+    };
+
     return (
-        <Card padding="md" className="hover:shadow-lg transition-shadow duration-300">
+        <div className={`p-5 bg-gradient-to-r ${getRatingGradient(review.overallRating)} rounded-2xl border-2 hover:shadow-lg transition-all duration-300`}>
             <div className="space-y-4">
                 {/* Header */}
                 <div className="flex items-start justify-between">
                     <div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-3 mb-2">
                             <StarRating value={review.overallRating} readOnly size="sm" />
-                            <span className="text-sm font-semibold text-[#3E2723]">
+                            <span className="text-sm font-bold text-[#3E2723] bg-white px-2.5 py-0.5 rounded-full shadow-sm">
                                 {review.overallRating}/5
                             </span>
                         </div>
-                        <div className="flex items-center gap-2 mt-2">
+                        <div className="flex flex-wrap items-center gap-2">
                             {review.jobTitle && (
-                                <span className="text-sm text-[#4A3C35]">{review.jobTitle}</span>
+                                <span className="text-sm font-medium text-[#4A3C35]">{review.jobTitle}</span>
                             )}
-                            <Badge variant="outline" size="sm">
-                                {review.employmentStatus === 'current' ? 'Current Employee' : 'Former Employee'}
+                            <Badge variant="outline" size="sm" className="font-semibold">
+                                {review.employmentStatus === 'current' ? '🟢 Current Employee' : '⚪ Former Employee'}
                             </Badge>
                         </div>
                     </div>
                     <div className="text-right">
-                        <span className="text-xs text-[#9B8B7E]">{formatDate(review.createdAt)}</span>
+                        <span className="text-xs font-medium text-[#9B8B7E] bg-white px-2 py-1 rounded-lg">{formatDate(review.createdAt)}</span>
                         {review.isAnonymous && (
-                            <div className="flex items-center gap-1 mt-1 text-xs text-[#9B8B7E]">
+                            <div className="flex items-center gap-1 mt-2 text-xs text-[#9B8B7E]">
                                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                 </svg>
@@ -147,22 +154,28 @@ function ReviewCard({ review, onHelpful, onReport, formatDate }) {
 
                 {/* Recommendation */}
                 <div className="flex items-center gap-2">
-                    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${review.wouldRecommend
-                            ? 'bg-[#4ade80]/15 text-[#16a34a]'
-                            : 'bg-[#C45B5B]/15 text-[#C45B5B]'
+                    <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold ${review.wouldRecommend
+                        ? 'bg-emerald-100 text-emerald-700'
+                        : 'bg-red-100 text-red-700'
                         }`}>
-                        {review.wouldRecommend ? '👍 Recommends' : '👎 Does not recommend'}
+                        {review.wouldRecommend ? '👍 Recommends this company' : '👎 Does not recommend'}
                     </span>
                 </div>
 
                 {/* Pros & Cons */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <h5 className="text-sm font-semibold text-[#16a34a] mb-1">Pros</h5>
+                    <div className="p-4 bg-white/70 rounded-xl">
+                        <h5 className="text-sm font-bold text-emerald-600 mb-2 flex items-center gap-2">
+                            <span className="w-6 h-6 bg-emerald-100 rounded-lg flex items-center justify-center text-xs">✓</span>
+                            Pros
+                        </h5>
                         <p className="text-sm text-[#4A3C35]">{review.pros}</p>
                     </div>
-                    <div>
-                        <h5 className="text-sm font-semibold text-[#C45B5B] mb-1">Cons</h5>
+                    <div className="p-4 bg-white/70 rounded-xl">
+                        <h5 className="text-sm font-bold text-red-600 mb-2 flex items-center gap-2">
+                            <span className="w-6 h-6 bg-red-100 rounded-lg flex items-center justify-center text-xs">✗</span>
+                            Cons
+                        </h5>
                         <p className="text-sm text-[#4A3C35]">{review.cons}</p>
                     </div>
                 </div>
@@ -171,45 +184,48 @@ function ReviewCard({ review, onHelpful, onReport, formatDate }) {
                 {review.advice && (
                     <>
                         {expanded && (
-                            <div>
-                                <h5 className="text-sm font-semibold text-[#90353D] mb-1">Advice to Management</h5>
+                            <div className="p-4 bg-gradient-to-r from-[#90353D]/5 to-white rounded-xl">
+                                <h5 className="text-sm font-bold text-[#90353D] mb-2 flex items-center gap-2">
+                                    <span className="w-6 h-6 bg-[#90353D]/10 rounded-lg flex items-center justify-center text-xs">💡</span>
+                                    Advice to Management
+                                </h5>
                                 <p className="text-sm text-[#4A3C35]">{review.advice}</p>
                             </div>
                         )}
                         <button
                             type="button"
                             onClick={() => setExpanded(!expanded)}
-                            className="text-sm text-[#90353D] hover:underline"
+                            className="text-sm font-semibold text-[#90353D] hover:underline flex items-center gap-1"
                         >
-                            {expanded ? 'Show less' : 'Read more'}
+                            {expanded ? '↑ Show less' : '↓ Read more'}
                         </button>
                     </>
                 )}
 
                 {/* Category Ratings */}
                 {review.categoryRatings && Object.keys(review.categoryRatings).length > 0 && (
-                    <div className="flex flex-wrap gap-2 pt-2 border-t border-[#90353D]/10">
+                    <div className="flex flex-wrap gap-2 pt-3 border-t border-white/50">
                         {Object.entries(review.categoryRatings).map(([category, rating]) => (
                             <span
                                 key={category}
-                                className="inline-flex items-center gap-1 px-2 py-1 bg-[#FAF6F0] rounded-lg text-xs"
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white rounded-xl text-xs font-medium shadow-sm"
                             >
                                 <span className="text-[#4A3C35] capitalize">{category.replace(/([A-Z])/g, ' $1').trim()}</span>
-                                <span className="font-medium text-[#90353D]">{rating}★</span>
+                                <span className="font-bold text-amber-500">{rating}★</span>
                             </span>
                         ))}
                     </div>
                 )}
 
                 {/* Footer Actions */}
-                <div className="flex items-center justify-between pt-3 border-t border-[#90353D]/10">
+                <div className="flex items-center justify-between pt-4 border-t border-white/50">
                     <button
                         type="button"
                         onClick={handleHelpful}
                         disabled={voted}
-                        className={`flex items-center gap-2 text-sm transition-colors ${voted
-                                ? 'text-[#90353D] font-medium'
-                                : 'text-[#9B8B7E] hover:text-[#90353D]'
+                        className={`flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-xl transition-all ${voted
+                            ? 'bg-[#90353D]/10 text-[#90353D]'
+                            : 'bg-white text-[#9B8B7E] hover:text-[#90353D] hover:bg-[#90353D]/5 shadow-sm'
                             }`}
                     >
                         <svg className="w-4 h-4" fill={voted ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
@@ -220,13 +236,13 @@ function ReviewCard({ review, onHelpful, onReport, formatDate }) {
                     <button
                         type="button"
                         onClick={onReport}
-                        className="text-sm text-[#9B8B7E] hover:text-[#C45B5B] transition-colors"
+                        className="text-sm font-medium text-[#9B8B7E] hover:text-red-500 transition-colors"
                     >
-                        Report
+                        🚩 Report
                     </button>
                 </div>
             </div>
-        </Card>
+        </div>
     );
 }
 
