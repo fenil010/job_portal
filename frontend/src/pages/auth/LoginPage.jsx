@@ -32,28 +32,49 @@ export default function LoginPage() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
-        const newErrors = {};
-        if (!formData.email) newErrors.email = 'Email is required';
-        if (!formData.password) newErrors.password = 'Password is required';
-        if (Object.keys(newErrors).length > 0) {
-            setErrors(newErrors);
+        setErrors({});
+
+        if (!formData.email || !formData.password) {
+            setErrors({
+                email: !formData.email ? "Email is required" : "",
+                password: !formData.password ? "Password is required" : "",
+            });
             setIsLoading(false);
             return;
         }
 
-        await new Promise((resolve) => setTimeout(resolve, 1500));
-        setIsLoading(false);
+        try {
+            await login(formData.email, formData.password);
 
-        const userData = {
-            id: 1,
-            name: 'Demo User',
-            email: formData.email,
-            role: 'jobseeker',
-        };
+            toast.success("Welcome back!", {
+                title: "Login successful",
+            });
 
-        login(userData);
-        toast.success('Welcome back!', { title: 'Logged in as Job Seeker' });
-        navigateByRole(userData.role);
+            const authData = await login(formData.email, formData.password);
+
+            const role = authData.user.role;
+
+            if (role === "employer") {
+                navigate("/employer/dashboard");
+            } else if (role === "admin") {
+                navigate("/admin/dashboard");
+            } else {
+                navigate("/dashboard");
+            }
+
+        } catch (error) {
+            console.error("Login failed:", error);
+
+            toast.error("Invalid credentials", {
+                title: "Login failed",
+            });
+
+            setErrors({
+                password: "Invalid email or password",
+            });
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleDemoLogin = async (role) => {
@@ -106,10 +127,10 @@ export default function LoginPage() {
                     <CardContent>
                         <form onSubmit={handleSubmit} className="space-y-5">
                             <Input
-                                label="Email"
+                                label="Username"
                                 id="login-email"
                                 name="email"
-                                type="email"
+                                type="text"
                                 placeholder="you@example.com"
                                 value={formData.email}
                                 onChange={handleChange}

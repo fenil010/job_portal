@@ -1,55 +1,92 @@
-import { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import {
+    createContext,
+    useContext,
+    useState,
+    useEffect,
+    useCallback,
+    useMemo,
+} from "react";
+import api from "../utils/api";
 
 const AuthContext = createContext(null);
 
-const STORAGE_KEY = 'jp_user';
+const STORAGE_KEY = "jp_auth";
 
 export function AuthProvider({ children }) {
-    const [user, setUser] = useState(null);
+    const [auth, setAuth] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    // Load user from localStorage on mount
+    // Load auth from localStorage
     useEffect(() => {
         try {
-            const storedUser = localStorage.getItem(STORAGE_KEY);
-            if (storedUser) {
-                setUser(JSON.parse(storedUser));
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored) {
+                setAuth(JSON.parse(stored));
             }
-        } catch (error) {
-            console.error('Failed to parse stored user:', error);
+        } catch (err) {
+            console.error("Invalid auth storage", err);
             localStorage.removeItem(STORAGE_KEY);
         } finally {
             setIsLoading(false);
         }
     }, []);
 
-    const login = useCallback((userData) => {
-        setUser(userData);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
-    }, []);
+    // 🔐 REAL LOGIN (Django)
+const login = useCallback(async (username, password) => {
+  // 1️⃣ Login to get tokens
+  const response = await api.post("/auth/login/", {
+    username,
+    password,
+  });
+
+  const access = response.data.access;
+  const refresh = response.data.refresh;
+
+  localStorage.setItem("access_token", access);
+
+  // 2️⃣ Fetch current user info (role, email, etc.)
+  const meResponse = await api.get("/auth/me/");
+
+  const authData = {
+    access,
+    refresh,
+    user: meResponse.data, // 👈 THIS FIXES EVERYTHING
+  };
+
+  setAuth(authData);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(authData));
+
+  return authData;
+}, []);
+
+
 
     const logout = useCallback(() => {
-        setUser(null);
+        setAuth(null);
         localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem("access_token");
     }, []);
 
-    const updateUser = useCallback((updates) => {
-        setUser((prev) => {
-            if (!prev) return null;
-            const updated = { ...prev, ...updates };
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-            return updated;
-        });
-    }, []);
+    // Keep axios token in sync
+    useEffect(() => {
+        if (auth?.access) {
+            localStorage.setItem("access_token", auth.access);
+        } else {
+            localStorage.removeItem("access_token");
+        }
+    }, [auth]);
 
-    const value = useMemo(() => ({
-        user,
-        isLoading,
-        isAuthenticated: !!user,
-        login,
-        logout,
-        updateUser,
-    }), [user, isLoading, login, logout, updateUser]);
+const value = useMemo(
+  () => ({
+    user: auth?.user || null,   // 👈 IMPORTANT
+    isAuthenticated: !!auth,
+    isLoading,
+    login,
+    logout,
+  }),
+  [auth, isLoading, login, logout]
+);
+
 
     return (
         <AuthContext.Provider value={value}>
@@ -59,11 +96,11 @@ export function AuthProvider({ children }) {
 }
 
 export function useAuth() {
-    const context = useContext(AuthContext);
-    if (!context) {
-        throw new Error('useAuth must be used within an AuthProvider');
+    const ctx = useContext(AuthContext);
+    if (!ctx) {
+        throw new Error("useAuth must be used inside AuthProvider");
     }
-    return context;
+    return ctx;
 }
 
 export default AuthContext;
