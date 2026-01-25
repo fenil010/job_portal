@@ -1,8 +1,10 @@
 from rest_framework import generics, permissions
 from .models import Application
 from .serializers import ApplicationSerializer
-from .permissions import IsJobSeeker
+from .permissions import IsJobSeeker, IsEmployer
 from jobs.models import Job
+from .employer_serializers import EmployerApplicationSerializer
+
 
 # Jobseeker applies to job
 class ApplyJobView(generics.CreateAPIView):
@@ -26,9 +28,12 @@ class MyApplicationsView(generics.ListAPIView):
 
 # Employer views applicants for their job
 class JobApplicantsView(generics.ListAPIView):
-    serializer_class = ApplicationSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = EmployerApplicationSerializer
+    permission_classes = [permissions.IsAuthenticated, IsEmployer]
 
     def get_queryset(self):
         job_id = self.kwargs['job_id']
-        return Application.objects.filter(job__id=job_id, job__created_by=self.request.user)
+        return Application.objects.filter(
+            job__id=job_id,
+            job__created_by=self.request.user
+        )
